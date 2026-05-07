@@ -18,11 +18,11 @@
   --border:rgba(0,0,0,0.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;scroll-padding-top:58px;}
 body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;line-height:1.75;}
 
 /* ── HEADER ── */
-header{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,22,40,0.97);backdrop-filter:blur(10px);}
+header{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,22,40,0.97);backdrop-filter:blur(10px);height:58px;}
 .hdr-inner{max-width:1060px;margin:0 auto;padding:0 1.5rem;height:58px;display:flex;align-items:center;justify-content:space-between;}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
 .logo-mark{width:34px;height:34px;background:var(--amber);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--navy);}
@@ -70,7 +70,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .sv-comment{margin-top:.8rem;font-size:.73rem;color:rgba(255,255,255,.6);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.22);border-radius:7px;padding:.45rem .7rem;line-height:1.6;}
 
 /* ── Sections ── */
-.section{padding:5rem 1.5rem;}
+.section{padding:4rem 1.5rem;scroll-margin-top:58px;}
 .section-inner{max-width:1060px;margin:0 auto;}
 .section-tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.15em;color:var(--teal);text-transform:uppercase;margin-bottom:.5rem;}
 .section-title{font-family:'Noto Serif JP',serif;font-size:clamp(1.4rem,2.6vw,2.1rem);font-weight:700;color:var(--text);line-height:1.42;margin-bottom:.75rem;}
@@ -89,7 +89,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .wc-body{font-size:.8rem;color:var(--text2);line-height:1.85;}
 
 /* ── RHYTHM section ── */
-.rhythm-section{background:linear-gradient(145deg,#0f0a1e,#1a0f35,#0a1628);padding:5rem 1.5rem;}
+.rhythm-section{background:linear-gradient(145deg,#0f0a1e,#1a0f35,#0a1628);padding:4rem 1.5rem;scroll-margin-top:58px;}
 .rhythm-inner{max-width:1060px;margin:0 auto;}
 .rhythm-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);color:var(--purple2);font-size:.7rem;font-weight:700;letter-spacing:.12em;padding:.32rem .85rem;border-radius:20px;margin-bottom:1rem;}
 .rhythm-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2rem;}
@@ -107,7 +107,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .fb-note{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.9;}
 
 /* ── FLOW steps ── */
-.flow-section{background:var(--navy2);padding:5rem 1.5rem;}
+.flow-section{background:var(--navy2);padding:4rem 1.5rem;scroll-margin-top:58px;}
 .flow-inner{max-width:1060px;margin:0 auto;}
 .flow-steps{margin-top:2.2rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
 .flow-step{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:1.3rem;position:relative;}
@@ -117,7 +117,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .fs-body{font-size:.78rem;color:rgba(255,255,255,.57);line-height:1.85;}
 
 /* ── APP cards ── */
-.app-section{background:var(--cream);padding:5rem 1.5rem;}
+.app-section{background:var(--cream);padding:4rem 1.5rem;scroll-margin-top:58px;}
 .app-inner{max-width:1060px;margin:0 auto;}
 .app-cards{margin-top:1.8rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
 .app-card{border-radius:13px;padding:1.7rem;text-decoration:none;display:block;transition:transform .2s;position:relative;overflow:hidden;}
@@ -141,7 +141,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .app-new-badge{display:inline-block;background:rgba(167,139,250,.2);color:var(--purple2);font-size:.62rem;font-weight:700;padding:.15rem .55rem;border-radius:8px;margin-left:5px;vertical-align:middle;}
 
 /* ── PRICING ── */
-.pricing-section{background:var(--cream);padding:5rem 1.5rem;}
+.pricing-section{background:var(--cream);padding:4rem 1.5rem;scroll-margin-top:58px;}
 .pricing-inner{max-width:1060px;margin:0 auto;}
 .pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;margin-top:2.2rem;}
 .price-card{background:white;border-radius:13px;border:1.5px solid var(--border);padding:1.5rem;position:relative;display:flex;flex-direction:column;}
@@ -172,25 +172,51 @@ h1.hero-title .ac{color:var(--amber2);}
 .cancel-note{margin-top:1.5rem;background:rgba(14,138,154,.05);border:1px solid rgba(14,138,154,.13);border-radius:10px;padding:1.1rem 1.4rem;font-size:.78rem;color:var(--text2);line-height:1.9;text-align:center;}
 
 /* ── MANGA ── */
-.manga-section{background:var(--navy);padding:5rem 1.5rem;}
-.manga-inner{max-width:1060px;margin:0 auto;}
-.manga-viewer{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;margin-top:2rem;}
-.manga-stage{position:relative;background:#0d0d0d;width:100%;overflow:hidden;}
-.manga-stage img.manga-img{display:block;width:100%;height:auto;opacity:0;transition:opacity .4s;position:absolute;top:0;left:0;}
-.manga-stage img.manga-img.active{opacity:1;position:relative;}
-.manga-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .2s;}
+.manga-section{background:var(--navy);padding:4rem 0;scroll-margin-top:58px;}
+.manga-inner{max-width:860px;margin:0 auto;padding:0 1.5rem;width:100%;box-sizing:border-box;}
+.manga-viewer{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;margin-top:2rem;width:100%;}
+/* ステージ: position:relative で高さはJSが固定する */
+.manga-stage{
+  position:relative;
+  background:#0d0d0d;
+  width:100%;
+  overflow:hidden;
+}
+/* 全画像が800x449=16:9なのでaspect-ratioで高さを完全固定 */
+.manga-img-wrap{
+  position:relative;
+  width:100%;
+  background:#0d0d0d;
+}
+/* 非activeはdisplay:none。全画像同サイズ(800x449)なのでジャンプなし */
+.manga-img-wrap img.manga-img{
+  display:none;
+  width:100%;
+  height:auto;
+}
+.manga-img-wrap img.manga-img.active{
+  display:block;
+}
+.manga-nav-btn{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.55);color:white;border:none;
+  width:46px;height:46px;border-radius:50%;font-size:1.5rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  z-index:10;transition:background .2s;
+}
 .manga-nav-btn:hover{background:rgba(212,146,42,.85);}
-.manga-prev{left:14px;}
-.manga-next{right:14px;}
+.manga-prev{left:12px;}
+.manga-next{right:12px;}
 .manga-caption-bar{padding:.85rem 1.4rem;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.4);}
 .manga-caption-text{font-size:.82rem;color:rgba(255,255,255,.75);}
 .manga-counter{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--amber2);font-weight:600;}
 .manga-thumbs{display:flex;gap:8px;padding:.9rem 1.2rem;overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;}
-.manga-thumb{width:72px;height:40px;object-fit:cover;border-radius:4px;opacity:.38;cursor:pointer;transition:opacity .2s,outline .2s;flex-shrink:0;}
-.manga-thumb.on{opacity:1;outline:2px solid var(--amber);}
+.manga-thumb{width:80px;height:56px;object-fit:cover;object-position:top center;border-radius:5px;opacity:.35;cursor:pointer;transition:opacity .2s,outline .2s,transform .15s;flex-shrink:0;}
+.manga-thumb:hover{opacity:.65;transform:scale(1.06);}
+.manga-thumb.on{opacity:1;outline:2px solid var(--amber);outline-offset:1px;transform:scale(1.06);}
 
 /* ── ABOUT ── */
-.about-section{background:var(--navy);padding:5rem 1.5rem;}
+.about-section{background:var(--navy);padding:4rem 1.5rem;scroll-margin-top:58px;}
 .about-inner{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:1fr 1.4fr;gap:3rem;align-items:start;}
 .about-stats{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:1.5rem;}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1rem;}
@@ -204,7 +230,7 @@ h1.hero-title .ac{color:var(--amber2);}
 .about-contact{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:.85rem 1rem;font-size:.78rem;color:rgba(255,255,255,.48);margin-top:1rem;line-height:1.9;}
 
 /* ── CTA ── */
-.cta-section{background:linear-gradient(135deg,var(--navy3),var(--navy2));padding:5rem 1.5rem;}
+.cta-section{background:linear-gradient(135deg,var(--navy3),var(--navy2));padding:4rem 1.5rem;scroll-margin-top:58px;}
 .cta-inner{max-width:680px;margin:0 auto;text-align:center;}
 .cta-title{font-family:'Noto Serif JP',serif;font-size:clamp(1.4rem,3vw,2rem);color:white;font-weight:700;line-height:1.5;margin-bottom:.9rem;}
 .cta-body{font-size:.88rem;color:rgba(255,255,255,.62);line-height:2;margin-bottom:1.8rem;}
@@ -578,7 +604,11 @@ footer{background:#060f1f;padding:3rem 1.5rem 1.5rem;}
           <li><span class="ok-p">✓</span> Before/After R値比較</li>
           <li><span class="ok-p">✓</span> レポートA・B 出力</li>
           <li><span class="ok-p">✓</span> CSV出力</li>
+          <li><span class="ok-p">✓</span> 📄 解説資料（全11章PDF）無料送付<span class="pc-new">特典</span></li>
         </ul>
+        <div style="background:rgba(255,255,255,.12);border-radius:9px;padding:9px 12px;margin:8px 0 12px;font-size:11.5px;color:rgba(255,255,255,.85);line-height:1.7;">
+          📌 <strong>登録者限定特典：</strong>「直立医学 病因論の物理数学的解釈・解説」（全11章 A4 PDF）をお問い合わせフォームからご請求いただけます。τ̂→ΔTss→Φ カスケード・AxisFlow・リズム解析などを詳細解説。臼井から直接メール添付にてお送りします（無料）。
+        </div>
         <a href="https://buy.stripe.com/9B628r6gT3pXcNj6n87AI04" target="_blank"><button class="pc-btn purple">14日間無料で試す</button></a>
       </div>
 
@@ -588,6 +618,11 @@ footer{background:#060f1f;padding:3rem 1.5rem 1.5rem;}
       <strong>解約はいつでも可能です。</strong><br>
       プランの変更・解約はアプリ内「プラン」タブからいつでも手続きできます。解約後も当月末まではサービスをご利用いただけます。<br>
       ご不明な点は <a href="mailto:usui@agozure.com" style="color:var(--teal);">usui@agozure.com</a> へお気軽にご連絡ください。
+    </div>
+    <div class="cancel-note fade-in" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe;margin-top:12px;">
+      <strong>📄 AxisPro登録者限定：解説資料のご請求</strong><br>
+      AxisPro有料登録者の方は、「直立医学 病因論の物理数学的解釈・解説」（全11章 A4 PDF）を<strong>無料でお受け取りいただけます</strong>。<br>
+      <a href="inquiry_form.html" style="color:var(--teal);font-weight:800;">お問い合わせフォーム</a>から「② 解説資料のご請求」をお選びいただき、AxisPro登録メールアドレスをご入力ください。臼井から直接メール添付にてお送りします。
     </div>
   </div>
 </section>
@@ -602,25 +637,28 @@ footer{background:#060f1f;padding:3rem 1.5rem 1.5rem;}
     </div>
     <div class="manga-viewer fade-in">
       <div class="manga-stage" id="manga-stage">
-        <!-- manga images loaded by JS from MANGA_DATA -->
-        <img class="manga-img active" id="mi0" src="" alt="p1">
-        <img class="manga-img" id="mi1" src="" alt="p2">
-        <img class="manga-img" id="mi2" src="" alt="p3">
-        <img class="manga-img" id="mi3" src="" alt="p4">
-        <img class="manga-img" id="mi4" src="" alt="p5">
-        <img class="manga-img" id="mi5" src="" alt="p6">
-        <img class="manga-img" id="mi6" src="" alt="p7">
-        <img class="manga-img" id="mi7" src="" alt="p8">
-        <img class="manga-img" id="mi8" src="" alt="p9">
-        <img class="manga-img" id="mi9" src="" alt="p10">
-        <img class="manga-img" id="mi10" src="" alt="p11">
-        <img class="manga-img" id="mi11" src="" alt="p12">
-        <img class="manga-img" id="mi12" src="" alt="p13">
-        <img class="manga-img" id="mi13" src="" alt="p14">
-        <img class="manga-img" id="mi14" src="" alt="p15">
-        <img class="manga-img" id="mi15" src="" alt="p16">
-        <img class="manga-img" id="mi16" src="" alt="p17">
-        <img class="manga-img" id="mi17" src="" alt="p18">
+        <!-- 画像をimg-wrapでgrid重ね合わせ、高さジャンプ防止 -->
+        <div class="manga-img-wrap">
+          <img class="manga-img active" id="mi0" src="" alt="p1">
+          <img class="manga-img" id="mi1" src="" alt="p2">
+          <img class="manga-img" id="mi2" src="" alt="p3">
+          <img class="manga-img" id="mi3" src="" alt="p4">
+          <img class="manga-img" id="mi4" src="" alt="p5">
+          <img class="manga-img" id="mi5" src="" alt="p6">
+          <img class="manga-img" id="mi6" src="" alt="p7">
+          <img class="manga-img" id="mi7" src="" alt="p8">
+          <img class="manga-img" id="mi8" src="" alt="p9">
+          <img class="manga-img" id="mi9" src="" alt="p10">
+          <img class="manga-img" id="mi10" src="" alt="p11">
+          <img class="manga-img" id="mi11" src="" alt="p12">
+          <img class="manga-img" id="mi12" src="" alt="p13">
+          <img class="manga-img" id="mi13" src="" alt="p14">
+          <img class="manga-img" id="mi14" src="" alt="p15">
+          <img class="manga-img" id="mi15" src="" alt="p16">
+          <img class="manga-img" id="mi16" src="" alt="p17">
+          <img class="manga-img" id="mi17" src="" alt="p18">
+        </div>
+        <!-- ナビボタンはstageにabsolute配置 -->
         <button class="manga-nav-btn manga-prev" onclick="mangaNav(-1)">‹</button>
         <button class="manga-nav-btn manga-next" onclick="mangaNav(+1)">›</button>
       </div>
@@ -648,6 +686,26 @@ footer{background:#060f1f;padding:3rem 1.5rem 1.5rem;}
         <img class="manga-thumb" id="mth16" src="" alt="p17" onclick="goManga(16)">
         <img class="manga-thumb" id="mth17" src="" alt="p18" onclick="goManga(17)">
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTUBE VIDEO -->
+<section style="background:var(--bg);padding:3rem 0;scroll-margin-top:58px;" id="youtube">
+  <div style="max-width:860px;margin:0 auto;padding:0 1.5rem;width:100%;box-sizing:border-box;">
+    <div class="fade-in">
+      <div class="section-tag" style="color:var(--amber2);">動画で見る</div>
+      <h2 class="section-title">ゆっくり直立歯科医学</h2>
+      <p class="section-lead">直立医学の基本概念をわかりやすく解説した動画です。</p>
+    </div>
+    <div class="fade-in" style="margin-top:2rem;text-align:center;">
+      <a href="https://www.youtube.com/watch?v=ZBVSecNgXL4" target="_blank" rel="noopener noreferrer"
+         style="display:inline-flex;align-items:center;gap:12px;background:#FF0000;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:1rem;font-weight:700;letter-spacing:.04em;transition:opacity .2s;box-shadow:0 4px 16px rgba(255,0,0,.35);"
+         onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+        YouTubeで視聴する
+      </a>
+      <p style="margin-top:1rem;font-size:.85rem;color:var(--sub);">「ゆっくり直立歯科医学」― 直立医学の理論をやさしく解説</p>
     </div>
   </div>
 </section>
@@ -785,20 +843,15 @@ const MANGA_DATA = [
   for(var i=0;i<MANGA_DATA.length;i++){
     var img=document.getElementById('mi'+i);
     var th=document.getElementById('mth'+i);
-    if(img){
-      img.src=MANGA_DATA[i].src;
-      img.style.position=(i===0)?'relative':'absolute';
-    }
-    if(th)th.src=MANGA_DATA[i].src;
+    if(img) img.src=MANGA_DATA[i].src;
+    if(th)  th.src=MANGA_DATA[i].src;
   }
 })();
 const MANGA_CAPS=(typeof MANGA_DATA!=='undefined')?MANGA_DATA.map(function(d){return d.cap;}):[];
 let mIdx=0;
 function goManga(i){
   document.querySelectorAll('.manga-img').forEach((el,j)=>{
-    const active=(j===i);
-    el.classList.toggle('active',active);
-    el.style.position=active?'relative':'absolute';
+    el.classList.toggle('active', j===i);
   });
   document.querySelectorAll('.manga-thumb').forEach((el,j)=>el.classList.toggle('on',j===i));
   const cap=document.getElementById('manga-cap');
@@ -813,6 +866,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft')mangaNav(-1);
   if(e.key==='ArrowRight')mangaNav(+1);
 });
+
+
 </script>
 </body>
 </html>
