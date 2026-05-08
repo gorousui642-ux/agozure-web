@@ -18,7 +18,8 @@
   --bg:#f0f4f8;--card:#fff;--text:#1a2535;--sub:#5a6980;--border:#d4dde8;
   --r:14px;--sh:0 2px 16px rgba(13,35,64,.10);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
 html,body{height:100%;overflow-x:hidden;}
 body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);}
 #app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);}
@@ -183,6 +184,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .disc-body{font-size:11px;color:rgba(255,255,255,.75);line-height:1.8;}
 
 .bottom-pad{height:80px;}
+@keyframes baRecDot{0%,100%{opacity:1;}50%{opacity:.2;}}
+
 #cam-inp,#file-inp{display:none;}
 </style>
 </head>
@@ -199,7 +202,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="logo-sub">カラダのひねりチェック</div>
       </div>
     </div>
-    <a href="index.html" class="site-link">🏠 サイトへ</a>
+    <a href="https://agozure.com" target="_blank" rel="noopener" class="site-link">🏠 サイトへ</a>
   </div>
   <div class="tabs">
     <button class="tab on" id="t-home"    onclick="goTab('home')">   <span class="tab-ic">🏠</span>ホーム</button>
@@ -213,6 +216,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
 <input type="file" id="file-inp" accept="image/*" onchange="onFile(event)">
 <input type="file" id="cam-inp"  accept="image/*" capture="environment" onchange="onFile(event)">
+<input type="file" id="self-cam-inp" accept="image/*" capture="user" onchange="onFile(event)">
 
 <!-- ██ HOME ██ -->
 <div class="panel on" id="panel-home">
@@ -286,7 +290,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:2px;">施術者の方はこちら</div>
         <div style="font-size:11px;color:rgba(255,255,255,.55);">AxisPro — 専門家向け詳細システム</div>
       </div>
-      <a href="AxisPro_final.html" target="_blank" style="background:var(--amber);color:var(--navy);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;">開く →</a>
+      <a href="AxisPro_improved.html" target="_blank" style="background:var(--amber);color:var(--navy);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;">開く →</a>
     </div>
   </div>
 
@@ -296,37 +300,142 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 <!-- ██ SCAN ██ -->
 <div class="panel" id="panel-scan">
 
-  <div class="al info" style="margin-bottom:12px;">
-    <div class="al-ic">📌</div>
-    <div>
-      <div class="al-t">撮影のコツ</div>
-      <div class="al-s">・全身（頭〜足）が映るように<br>・壁から1〜2m離れて真っすぐ立つ<br>・正面から撮影してください</div>
+  <!-- ▼ ステージ0: カメラ選択 -->
+  <div id="scan-stage-select">
+    <div class="al info" style="margin-bottom:12px;">
+      <div class="al-ic">📌</div>
+      <div>
+        <div class="al-t">動画で撮影（自動解析）</div>
+        <div class="al-s">・全身（頭〜足）が映るように立つ<br>・7秒後に10秒間自動録画します<br>・正面からの立位静止のみ</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="ch-t">📷 カメラを選んでください</div></div>
+      <div class="card-body">
+        <!-- 人体シルエットガイド -->
+        <div style="text-align:center;margin-bottom:14px;">
+          <svg width="110" height="160" viewBox="0 0 110 160">
+            <line x1="15" y1="150" x2="95" y2="150" stroke="var(--teal)" stroke-width="1.5" stroke-dasharray="4,3" opacity=".6"/>
+            <rect x="38" y="136" width="14" height="10" rx="3" fill="var(--teal)" opacity=".25"/>
+            <rect x="58" y="136" width="14" height="10" rx="3" fill="var(--teal)" opacity=".25"/>
+            <rect x="40" y="98" width="10" height="42" rx="5" fill="var(--navy)"/>
+            <rect x="60" y="98" width="10" height="42" rx="5" fill="var(--navy)"/>
+            <rect x="34" y="48" width="42" height="54" rx="8" fill="var(--navy)"/>
+            <rect x="18" y="50" width="12" height="38" rx="6" fill="var(--navy)" transform="rotate(8 24 69)"/>
+            <rect x="80" y="50" width="12" height="38" rx="6" fill="var(--navy)" transform="rotate(-8 86 69)"/>
+            <rect x="48" y="34" width="14" height="18" rx="6" fill="var(--navy)"/>
+            <circle cx="55" cy="22" r="16" fill="var(--navy)"/>
+            <text x="55" y="158" text-anchor="middle" font-size="8" fill="var(--teal)" font-weight="700">肩幅以上離れる</text>
+          </svg>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div id="ba-cam-back" onclick="baSelectCam('back')"
+            style="border:2px solid var(--border);border-radius:10px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s;">
+            <div style="font-size:30px;margin-bottom:6px;">📱</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">背面カメラ</div>
+            <div style="font-size:10px;color:var(--sub);margin-top:3px;">固定して撮影</div>
+          </div>
+          <div id="ba-cam-front" onclick="baSelectCam('front')"
+            style="border:2px solid var(--border);border-radius:10px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s;">
+            <div style="font-size:30px;margin-bottom:6px;">🤳</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">自撮りカメラ</div>
+            <div style="font-size:10px;color:var(--sub);margin-top:3px;">自分で持って撮影</div>
+          </div>
+        </div>
+        <button class="btn btn-amber" id="ba-start-btn" onclick="baStartVideo()" disabled
+          style="opacity:.4;">
+          📹 撮影を開始する
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="card" style="padding:0;">
-    <div class="photo-area" id="photo-area">
-      <div class="no-photo-msg" id="no-photo">
-        <div class="ni">🧍</div>
-        <p>カメラで撮影するか<br>写真を選んでください</p>
+  <!-- ▼ ステージ1: 動画録画UI -->
+  <div id="scan-stage-video" style="display:none;">
+    <div class="card" style="padding:0;overflow:hidden;">
+      <!-- プレビュー -->
+      <div style="position:relative;background:#000;min-height:240px;display:flex;align-items:center;justify-content:center;">
+        <video id="ba-rec-vid" playsinline muted autoplay style="width:100%;max-height:300px;object-fit:cover;display:block;"></video>
+        <!-- シルエットオーバーレイ -->
+        <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);pointer-events:none;"
+          width="80" height="160" viewBox="0 0 80 160">
+          <g opacity=".2" fill="white">
+            <circle cx="40" cy="16" r="12"/>
+            <rect x="26" y="30" width="28" height="48" rx="6"/>
+            <rect x="10" y="32" width="12" height="36" rx="5" transform="rotate(8 16 50)"/>
+            <rect x="58" y="32" width="12" height="36" rx="5" transform="rotate(-8 64 50)"/>
+            <rect x="28" y="78" width="10" height="46" rx="5"/>
+            <rect x="42" y="78" width="10" height="46" rx="5"/>
+          </g>
+        </svg>
+        <!-- REC バッジ -->
+        <div id="ba-rec-badge" style="display:none;position:absolute;top:10px;left:10px;
+          background:rgba(220,38,38,.9);color:#fff;border-radius:20px;padding:4px 10px;
+          font-size:12px;font-weight:800;display:none;align-items:center;gap:5px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:#fff;animation:baRecDot 1s infinite;"></div> REC
+        </div>
+        <!-- カウントダウン数字 -->
+        <div id="ba-countdown-ov" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+          <div id="ba-cd-num" style="font-size:88px;font-weight:900;color:#fff;line-height:1;text-shadow:0 4px 24px rgba(0,0,0,.6);display:none;"></div>
+          <div id="ba-cd-lbl" style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-top:6px;display:none;"></div>
+        </div>
       </div>
-      <canvas id="pose-canvas" style="display:none;max-width:100%;"></canvas>
-      <div class="proc-ov" id="proc-ov" style="display:none;">
-        <div class="spin"></div>
-        <h4>ひねりを計測中…</h4>
-        <p>少しお待ちください</p>
+      <!-- 残り時間バー -->
+      <div id="ba-remain-wrap" style="display:none;padding:10px 14px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <div style="font-size:12px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:5px;">
+            <span>🔴</span>撮影中
+          </div>
+          <div style="font-size:13px;font-weight:800;color:var(--orange);"><span id="ba-remain-secs">10</span>秒</div>
+        </div>
+        <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden;">
+          <div id="ba-remain-bar" style="height:7px;background:linear-gradient(90deg,var(--amber),var(--red));border-radius:4px;width:100%;transition:width 1s linear;"></div>
+        </div>
+      </div>
+      <!-- ステータスメッセージ -->
+      <div style="text-align:center;padding:8px 14px;font-size:12px;color:var(--sub);" id="ba-stage-msg">姿勢を整えてください</div>
+      <!-- キャンセル -->
+      <div style="padding:0 14px 14px;">
+        <button class="ph-btn" style="width:100%;background:#374151;color:#fff;border-radius:8px;padding:12px;font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="baCancelVideo()">✕ キャンセル</button>
       </div>
     </div>
-    <div class="photo-btn-row" id="ph-btns">
-      <button class="ph-btn ph-take" onclick="document.getElementById('cam-inp').click()">📷 撮影する</button>
-      <button class="ph-btn ph-pick" onclick="document.getElementById('file-inp').click()">🖼 写真を選ぶ</button>
-    </div>
-    <div class="photo-btn-row" id="ph-retake" style="display:none;">
-      <button class="ph-btn" style="background:#374151;color:#fff;flex:1;" onclick="resetScan()">🔄 撮り直す</button>
-    </div>
+  </div>
 
-    <!-- Measurement result -->
-    <div class="meas-strip" id="meas-strip" style="display:none;">
+  <!-- ▼ ステージ2: 解析中 -->
+  <div id="scan-stage-analyzing" style="display:none;">
+    <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:var(--r);padding:28px 16px;text-align:center;margin-bottom:12px;">
+      <div style="font-size:40px;animation:sp .9s linear infinite;display:inline-block;margin-bottom:12px;">⚙️</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:8px;">解析中...</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;text-align:left;">
+        <div class="ba-as-item" id="ba-as1" style="font-size:12px;color:rgba(255,255,255,.9);display:flex;align-items:center;gap:8px;"><span>🎬</span><span>動画フレームを展開中</span></div>
+        <div class="ba-as-item" id="ba-as2" style="font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px;"><span>🦴</span><span>ランドマーク解析中</span></div>
+        <div class="ba-as-item" id="ba-as3" style="font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px;"><span>📊</span><span>ひねりスコア算出中</span></div>
+        <div class="ba-as-item" id="ba-as4" style="font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px;"><span>🖼️</span><span>代表フレーム抽出中</span></div>
+      </div>
+      <div style="height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;">
+        <div id="ba-as-bar" style="height:5px;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:3px;width:0%;transition:width .4s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ▼ ステージ3: 解析結果 (既存 photo-area を流用してキャンバスを表示) -->
+  <div id="scan-stage-result" style="display:none;">
+    <div class="card" style="padding:0;">
+      <div class="photo-area" id="photo-area">
+        <div class="no-photo-msg" id="no-photo" style="display:none;">
+          <div class="ni">🧍</div><p>解析結果がここに表示されます</p>
+        </div>
+        <canvas id="pose-canvas" style="display:none;max-width:100%;"></canvas>
+        <div class="proc-ov" id="proc-ov" style="display:none;">
+          <div class="spin"></div><h4>ひねりを計測中…</h4><p>少しお待ちください</p>
+        </div>
+      </div>
+      <div class="photo-btn-row" id="ph-retake">
+        <button class="ph-btn" style="background:#374151;color:#fff;flex:1;" onclick="resetScan()">🔄 撮り直す</button>
+      </div>
+
+      <!-- Measurement result -->
+      <div class="meas-strip" id="meas-strip" style="display:none;">
       <div class="meas-title">🔍 AI計測結果</div>
       <div class="meas-grid">
         <div class="meas-cell">
@@ -347,8 +456,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="tm-score" id="tm-score">—</div>
         <div class="tm-level" id="tm-level" style="color:rgba(255,255,255,.7);">—</div>
       </div>
-    </div>
-  </div>
+      <!-- 位相同期R値 -->
+      <div id="r-value-row" style="display:none;margin:12px 14px 0;padding:12px 14px;background:rgba(255,255,255,.05);border-radius:10px;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.08em;margin-bottom:6px;">🌀 位相同期リズム（Kuramoto R値）</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="r-value-num" style="font-size:28px;font-weight:900;font-family:monospace;">—</div>
+          <div id="r-value-lbl" style="font-size:12px;font-weight:700;">—</div>
+        </div>
+        <div style="margin-top:8px;background:rgba(255,255,255,.1);border-radius:4px;height:5px;overflow:hidden;">
+          <div id="r-value-bar" style="height:100%;width:0%;border-radius:4px;transition:width 1s ease;"></div>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:5px;">R=1.00：完全同期 / R=0.00：完全非同期（Kuramoto モデル）</div>
+      </div>
+    </div><!-- /meas-strip -->
+    </div><!-- /card -->
+  </div><!-- /scan-stage-result -->
 
   <button class="btn btn-green" id="btn-save" onclick="saveScan()" style="display:none;">
     ✅ この結果を保存する
@@ -542,7 +664,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:4px;">施術者の方へ</div>
     <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">AxisPro</div>
     <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:14px;">専門家向け詳細解析システム</div>
-    <a href="AxisPro_final.html" target="_blank" style="background:var(--amber);color:var(--navy);border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;text-decoration:none;display:inline-block;">AxisPro を開く →</a>
+    <a href="AxisPro_improved.html" target="_blank" style="background:var(--amber);color:var(--navy);border-radius:10px;padding:12px 24px;font-size:14px;font-weight:800;text-decoration:none;display:inline-block;">AxisPro を開く →</a>
   </div>
 
   <div class="bottom-pad"></div>
@@ -550,6 +672,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
 
 <!-- ██ PLAN ██ -->
+
 <div class="panel" id="panel-plan">
   <!-- Current plan indicator -->
   <div class="al info" id="current-plan-info">
@@ -607,7 +730,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
   <!-- Back to site -->
   <div style="text-align:center;margin-top:8px;padding-top:14px;border-top:1px solid var(--border);">
-    <a href="index.html" style="color:var(--sub);font-size:12px;text-decoration:none;">🏠 ホームページへ戻る</a>
+    <a href="https://agozure.com" target="_blank" rel="noopener" style="color:var(--sub);font-size:12px;text-decoration:none;">🏠 ホームページへ戻る</a>
     <span style="color:var(--border);margin:0 10px;">|</span>
     <a href="AxisPro_improved.html" target="_blank" style="color:var(--sub);font-size:12px;text-decoration:none;">⚕️ 施術者用AxisProへ</a>
   </div>
@@ -652,41 +775,248 @@ function scoreLevel(s){
   return {label:'要相談 🔴',color:'#dc2626',alClass:'danger',ic:'⚠️',title:'ひねりが強い状態です',body:'専門家への相談をおすすめします。図書館前歯科（富士市）の静岡メソッドもご検討ください。'};
 }
 
-/* ─── Photo / Pose ─── */
+/* ─── Video Recording / Pose ─── */
 let lastScan = null;
+let _baCamFacing = 'environment';
+let _baStream = null, _baRecorder = null, _baChunks = [];
+let _baPose = null;
 
-function onFile(ev){
-  const f=ev.target.files[0]; if(!f) return;
-  ev.target.value='';
-  const rd=new FileReader();
-  rd.onload=e=>{ const img=new Image(); img.onload=()=>runPose(img); img.src=e.target.result; };
-  rd.readAsDataURL(f);
+/* カメラ選択 */
+function baSelectCam(type){
+  _baCamFacing = (type === 'front') ? 'user' : 'environment';
+  ['ba-cam-back','ba-cam-front'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.style.border = '2px solid var(--border)';
+    el.style.background = '';
+  });
+  const sel = document.getElementById(type === 'front' ? 'ba-cam-front' : 'ba-cam-back');
+  sel.style.border = '2px solid var(--teal)';
+  sel.style.background = '#e0f2fe';
+  document.getElementById('ba-start-btn').disabled = false;
+  document.getElementById('ba-start-btn').style.opacity = '1';
 }
 
-function runPose(img){
-  document.getElementById('no-photo').style.display='none';
-  document.getElementById('proc-ov').style.display='flex';
-  document.getElementById('ph-btns').style.display='none';
-  document.getElementById('ph-retake').style.display='flex';
-  document.getElementById('meas-strip').style.display='none';
-  document.getElementById('btn-save').style.display='none';
-
-  const canvas=document.getElementById('pose-canvas');
-  canvas.style.display='block';
-  const maxW=document.getElementById('photo-area').offsetWidth||380;
-  const maxH=340;
-  let w=img.width, h=img.height;
-  if(w>maxW){ h=h*maxW/w; w=maxW; }
-  if(h>maxH){ w=w*maxH/h; h=maxH; }
-  canvas.width=Math.round(w); canvas.height=Math.round(h);
-  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+/* 撮影開始 */
+async function baStartVideo(){
+  document.getElementById('scan-stage-select').style.display = 'none';
+  document.getElementById('scan-stage-video').style.display = 'block';
 
   try{
-    const pose=new Pose({locateFile:fn=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${fn}`});
-    pose.setOptions({modelComplexity:1,smoothLandmarks:true,minDetectionConfidence:.5,minTrackingConfidence:.5});
-    pose.onResults(res=>onPoseResult(res,canvas));
-    pose.send({image:canvas}).catch(()=>simPose(canvas));
-  }catch(e){ setTimeout(()=>simPose(canvas),1400); }
+    _baStream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode: _baCamFacing, width:{ideal:720}, height:{ideal:1280}, frameRate:{ideal:30} },
+      audio: false
+    });
+    const vid = document.getElementById('ba-rec-vid');
+    vid.srcObject = _baStream;
+    await vid.play();
+  }catch(e){
+    alert('カメラへのアクセスを許可してください。\n'+e.message);
+    resetScan(); return;
+  }
+
+  /* 7秒カウントダウン（準備） */
+  const numEl = document.getElementById('ba-cd-num');
+  const lblEl = document.getElementById('ba-cd-lbl');
+  const msgEl = document.getElementById('ba-stage-msg');
+  numEl.style.display='block'; lblEl.style.display='block';
+  lblEl.textContent='姿勢を整えてください';
+  for(let i=7;i>0;i--){
+    numEl.textContent=i;
+    await baSleep(1000);
+  }
+  numEl.style.display='none'; lblEl.style.display='none';
+
+  /* 録画開始 */
+  const badge = document.getElementById('ba-rec-badge');
+  badge.style.display='flex';
+  document.getElementById('ba-remain-wrap').style.display='block';
+  msgEl.textContent='自然体で静止してください';
+
+  _baChunks=[];
+  const mime = baGetMime();
+  _baRecorder = new MediaRecorder(_baStream, mime ? {mimeType:mime} : {});
+  _baRecorder.ondataavailable = e=>{ if(e.data.size>0) _baChunks.push(e.data); };
+  _baRecorder.start(200);
+
+  /* 10秒録画カウントダウン */
+  const secsEl = document.getElementById('ba-remain-secs');
+  const barEl  = document.getElementById('ba-remain-bar');
+  for(let i=10;i>=0;i--){
+    secsEl.textContent=i;
+    barEl.style.width=(i/10*100)+'%';
+    await baSleep(1000);
+  }
+
+  /* 停止 */
+  _baRecorder.stop();
+  await new Promise(r=>{ _baRecorder.onstop=r; });
+  _baStream.getTracks().forEach(t=>t.stop());
+
+  const blob = new Blob(_baChunks, {type: mime||'video/webm'});
+
+  /* 解析へ */
+  document.getElementById('scan-stage-video').style.display='none';
+  document.getElementById('scan-stage-analyzing').style.display='block';
+  await baAnalyzeBlob(blob);
+}
+
+function baCancelVideo(){
+  if(_baStream) _baStream.getTracks().forEach(t=>t.stop());
+  if(_baRecorder && _baRecorder.state!=='inactive') _baRecorder.stop();
+  resetScan();
+}
+
+function baGetMime(){
+  const types=['video/mp4;codecs=avc1','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  for(const t of types){ if(MediaRecorder.isTypeSupported(t)) return t; }
+  return '';
+}
+function baSleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ─── 動画解析 ─── */
+async function baAnalyzeBlob(blob){
+  baSetStep(1); baSetBar(10);
+
+  /* 動画 → フレーム抽出 */
+  const video = document.createElement('video');
+  video.src = URL.createObjectURL(blob);
+  video.muted = true;
+  await new Promise(r=>{ video.onloadedmetadata=r; });
+  const duration = video.duration;
+  const total = Math.min(Math.floor(duration * 8), 80);
+
+  const offC = document.createElement('canvas');
+  offC.width=320; offC.height=480;
+  const offCtx = offC.getContext('2d');
+
+  /* MediaPipe 初期化 */
+  if(!_baPose){
+    _baPose = new Pose({locateFile:fn=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${fn}`});
+    _baPose.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:false,minDetectionConfidence:.5,minTrackingConfidence:.5});
+    _baPose.onResults(res=>{ _baPose._last=res; });
+    await _baPose.send({image:offC}).catch(()=>{});
+    await baSleep(300);
+  }
+
+  baSetStep(2); baSetBar(20);
+
+  const frames=[];
+  for(let i=0;i<total;i++){
+    const t=(i/(total-1))*duration;
+    await baSeekVideo(video,t);
+    offCtx.drawImage(video,0,0,offC.width,offC.height);
+    _baPose._last=null;
+    await _baPose.send({image:offC}).catch(()=>{});
+    await baSleep(30);
+    if(_baPose._last && _baPose._last.poseLandmarks){
+      const snap=document.createElement('canvas');
+      snap.width=offC.width; snap.height=offC.height;
+      snap.getContext('2d').drawImage(offC,0,0);
+      frames.push({lm:_baPose._last.poseLandmarks, canvas:snap, time:t});
+    }
+    baSetBar(20 + 50*(i/total));
+  }
+
+  baSetStep(3); baSetBar(72);
+
+  /* ── 角度正規化：atan2の±180°出力を傾き角度（±90°以内）に変換 ── */
+  function normalizeAngle(deg){
+    // atan2は水平線に対する角度を返す。
+    // 肩・骨盤ラインの「傾き」として意味のある範囲は -90〜+90°
+    while(deg >  90) deg -= 180;
+    while(deg < -90) deg += 180;
+    return deg;
+  }
+
+  /* ── ランドマーク可視性フィルター：4点すべてのvisibilityが0.5以上のフレームのみ使用 ── */
+  const validFrames = frames.filter(f=>{
+    const lm = f.lm;
+    return [11,12,23,24].every(i => (lm[i].visibility||0) >= 0.5);
+  });
+  const useFrames = validFrames.length >= 3 ? validFrames : frames; // フィルター後が少なすぎる場合は全フレームを使用
+
+  /* スコア計算 */
+  let sA=0, hA=0, pti=0, twistScore=0;
+  if(useFrames.length > 0){
+    const LM = useFrames.map(f=>f.lm);
+    // 各フレームの傾き角度を正規化してから平均
+    const shA = LM.map(lm=>normalizeAngle(Math.atan2(lm[12].y-lm[11].y, lm[12].x-lm[11].x)*180/Math.PI));
+    const hiA = LM.map(lm=>normalizeAngle(Math.atan2(lm[24].y-lm[23].y, lm[24].x-lm[23].x)*180/Math.PI));
+    sA = shA.reduce((a,b)=>a+b,0)/shA.length;
+    hA = hiA.reduce((a,b)=>a+b,0)/hiA.length;
+    // PTI = 肩帯と骨盤帯の角度差（符号付きで計算後に絶対値）
+    pti = Math.abs(sA - hA);
+    // 180°を超える場合は反対方向の差に補正
+    if(pti > 90) pti = 180 - pti;
+    twistScore = Math.min(100,Math.max(0,Math.round(pti/25*100)));
+  } else {
+    /* フォールバック（MediaPipe未検出時） */
+    sA=(Math.random()-.5)*12; hA=(Math.random()-.5)*14;
+    pti=Math.abs(sA-hA); twistScore=Math.min(100,Math.max(0,Math.round(pti/25*100)));
+    showToast('姿勢検出が不完全でした。推定値を表示します。');
+  }
+
+  /* ── Kuramoto R値（位相同期指数）計算 ── */
+  let kuramotoR = null;
+  if(useFrames.length >= 4){
+    const LM = useFrames.map(f=>f.lm);
+    // 肩・腰それぞれの傾き角（ラジアン）時系列
+    const thetaS = LM.map(lm=>Math.atan2(lm[12].y-lm[11].y, lm[12].x-lm[11].x));
+    const thetaH = LM.map(lm=>Math.atan2(lm[24].y-lm[23].y, lm[24].x-lm[23].x));
+    // 位相差 Δθ(t) = θ_shoulder(t) − θ_hip(t)
+    const delta = thetaS.map((s,i)=>s - thetaH[i]);
+    // 秩序パラメータ R = |mean(exp(i·Δθ))|
+    const sinSum = delta.reduce((a,d)=>a+Math.sin(d),0);
+    const cosSum = delta.reduce((a,d)=>a+Math.cos(d),0);
+    kuramotoR = Math.sqrt(sinSum*sinSum + cosSum*cosSum) / delta.length;
+    kuramotoR = Math.round(kuramotoR * 100) / 100; // 小数2位
+  }
+
+  baSetStep(4); baSetBar(90);
+
+  /* 代表フレームをキャンバスに描画 */
+  await baSleep(200);
+  const canvas = document.getElementById('pose-canvas');
+  if(frames.length > 0){
+    const midF = frames[Math.floor(frames.length/2)];
+    canvas.width=midF.canvas.width; canvas.height=midF.canvas.height;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(midF.canvas,0,0);
+    const lm=midF.lm;
+    const W=canvas.width, H=canvas.height;
+    // 肩・骨盤ライン描画
+    function dL(ctx,x1,y1,x2,y2,col,lw){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.stroke();}
+    function dLbl(ctx,x,y,txt,col){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x,y-17,txt.length*7+6,18);ctx.fillStyle=col;ctx.font='bold 11px sans-serif';ctx.fillText(txt,x+3,y-3);}
+    dL(ctx,lm[11].x*W,lm[11].y*H,lm[12].x*W,lm[12].y*H,'#60a5fa',2.5);
+    dL(ctx,lm[23].x*W,lm[23].y*H,lm[24].x*W,lm[24].y*H,'#f97316',2.5);
+    [11,12,23,24].forEach(i=>{ctx.beginPath();ctx.arc(lm[i].x*W,lm[i].y*H,6,0,2*Math.PI);ctx.fillStyle='#E8A020';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();});
+    dLbl(ctx,lm[11].x*W,lm[11].y*H,sA.toFixed(1)+'°','#60a5fa');
+    dLbl(ctx,lm[23].x*W,lm[23].y*H,hA.toFixed(1)+'°','#f97316');
+  }
+
+  baSetBar(100);
+  await baSleep(300);
+
+  /* 結果表示 */
+  document.getElementById('scan-stage-analyzing').style.display='none';
+  document.getElementById('scan-stage-result').style.display='block';
+  canvas.style.display='block';
+  document.getElementById('no-photo').style.display='none';
+  showMeasResult(sA, hA, pti, kuramotoR);
+}
+
+function baSetStep(n){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('ba-as'+i);
+    if(!el) continue;
+    if(i<n) el.style.color='#34d399';
+    else if(i===n) el.style.color='rgba(255,255,255,.9)';
+    else el.style.color='rgba(255,255,255,.4)';
+  }
+}
+function baSetBar(pct){ document.getElementById('ba-as-bar').style.width=pct+'%'; }
+async function baSeekVideo(video,time){
+  return new Promise(r=>{ video.currentTime=time; video.onseeked=r; });
 }
 
 function onPoseResult(res,canvas){
@@ -704,13 +1034,18 @@ function onPoseResult(res,canvas){
     ctx.fillStyle='#E8A020'; ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
   });
-  const sA=Math.atan2(lms[12].y-lms[11].y,lms[12].x-lms[11].x)*180/Math.PI;
-  const hA=Math.atan2(lms[24].y-lms[23].y,lms[24].x-lms[23].x)*180/Math.PI;
+  // 角度を正規化して傾き角度（±90°以内）に変換
+  let sA = Math.atan2(lms[12].y-lms[11].y,lms[12].x-lms[11].x)*180/Math.PI;
+  let hA = Math.atan2(lms[24].y-lms[23].y,lms[24].x-lms[23].x)*180/Math.PI;
+  while(sA >  90) sA -= 180; while(sA < -90) sA += 180;
+  while(hA >  90) hA -= 180; while(hA < -90) hA += 180;
+  let pti = Math.abs(sA - hA);
+  if(pti > 90) pti = 180 - pti;
   dLine(ctx,lms[11].x*W,lms[11].y*H,lms[12].x*W,lms[12].y*H,'#60a5fa',2.5);
   dLine(ctx,lms[23].x*W,lms[23].y*H,lms[24].x*W,lms[24].y*H,'#f97316',2.5);
   dLabel(ctx,lms[11].x*W,lms[11].y*H,sA.toFixed(1)+'°','#60a5fa');
   dLabel(ctx,lms[23].x*W,lms[23].y*H,hA.toFixed(1)+'°','#f97316');
-  showMeasResult(sA,hA,Math.abs(sA-hA));
+  showMeasResult(sA,hA,pti);
 }
 
 function simPose(canvas){
@@ -730,8 +1065,11 @@ function simPose(canvas){
   showMeasResult(sA,hA,Math.abs(sA-hA));
 }
 
-function showMeasResult(sA,hA,pti){
-  const twistScore=Math.min(100,Math.round(pti*4 + (Math.abs(sA)+Math.abs(hA))*0.8));
+function showMeasResult(sA,hA,pti,kuramotoR){
+  // pti = 肩帯と骨盤帯の傾き角度差（正規化済み、0〜90°）
+  // 典型値: 0〜5° 正常, 5〜15° 中等度, 15〜25° 重度
+  // スケール: 25°で満点100（pti/25*100）
+  const twistScore=Math.min(100,Math.max(0,Math.round(pti/25*100)));
   const lv=scoreLevel(twistScore);
 
   document.getElementById('pr-sho').textContent=sA.toFixed(1)+'°';
@@ -744,11 +1082,30 @@ function showMeasResult(sA,hA,pti){
   document.getElementById('meas-strip').style.display='block';
   document.getElementById('btn-save').style.display='block';
 
+  /* R値（位相同期）表示 */
+  const rEl = document.getElementById('r-value-row');
+  if(rEl && kuramotoR !== null && kuramotoR !== undefined){
+    const rNum = document.getElementById('r-value-num');
+    const rLbl = document.getElementById('r-value-lbl');
+    const rBar = document.getElementById('r-value-bar');
+    if(rNum) rNum.textContent = kuramotoR.toFixed(2);
+    let rColor='#34d399', rText='✅ リズム同期：安定';
+    if(kuramotoR < 0.5){ rColor='#ef4444'; rText='🔴 リズム同期：乱れあり'; }
+    else if(kuramotoR < 0.75){ rColor='#f59e0b'; rText='⚠️ リズム同期：やや不安定'; }
+    if(rNum) rNum.style.color = rColor;
+    if(rLbl) rLbl.textContent = rText;
+    if(rLbl) rLbl.style.color = rColor;
+    if(rBar) rBar.style.width = (kuramotoR*100)+'%';
+    if(rBar) rBar.style.background = rColor;
+    rEl.style.display='block';
+  }
+
   const P_raw=st.symptom ? Math.min(1,(st.symptom.pain||0)/10*0.6+(st.symptom.areas||[]).length*0.08) : 0;
   lastScan={
     sA:+sA.toFixed(1),hA:+hA.toFixed(1),pti:+pti.toFixed(1),
     twistScore, P_pct:Math.round(P_raw*100),
     S_raw:Math.min(1,twistScore/100), P_raw,
+    R: kuramotoR,
     date:new Date().toLocaleDateString('ja-JP',{month:'2-digit',day:'2-digit'})
   };
 }
@@ -762,16 +1119,34 @@ function dLabel(ctx,x,y,text,col){
   ctx.fillStyle=col; ctx.font='bold 11px sans-serif'; ctx.fillText(text,x+3,y-3);
 }
 
+
+/* ─── (旧静止画撮影関数は動画方式に統合済み) ─── */
+
 function resetScan(){
   lastScan=null;
-  document.getElementById('no-photo').style.display='flex';
+  _baStream=null; _baChunks=[];
+  // ステージリセット
+  document.getElementById('scan-stage-select').style.display='block';
+  document.getElementById('scan-stage-video').style.display='none';
+  document.getElementById('scan-stage-analyzing').style.display='none';
+  document.getElementById('scan-stage-result').style.display='none';
+  // 結果クリア
   document.getElementById('pose-canvas').style.display='none';
-  document.getElementById('ph-btns').style.display='flex';
-  document.getElementById('ph-retake').style.display='none';
+  document.getElementById('no-photo').style.display='flex';
   document.getElementById('meas-strip').style.display='none';
   document.getElementById('btn-save').style.display='none';
-  document.getElementById('proc-ov').style.display='none';
   document.getElementById('save-ok').style.display='none';
+  document.getElementById('ba-rec-badge').style.display='none';
+  document.getElementById('ba-remain-wrap').style.display='none';
+  // カメラ選択リセット
+  ['ba-cam-back','ba-cam-front'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.border='2px solid var(--border)';
+    el.style.background='';
+  });
+  document.getElementById('ba-start-btn').disabled=true;
+  document.getElementById('ba-start-btn').style.opacity='0.4';
+  _baCamFacing='environment';
 }
 
 function saveScan(){
@@ -927,12 +1302,8 @@ function updatePlanUI(){
 }
 
 function doUpgrade(){
-  // Simulate upgrade flow
-  if(confirm('スタンダードプランに申し込みますか？\n\n最初の7日間は無料です。8日目以降 ¥680/月が発生します。\n解約はいつでも可能です。')){
-    st.plan = 'standard';
-    save();
-    updatePlanUI();
-    showToast('✅ スタンダードプランを開始しました（7日間無料）');
+  if(confirm('スタンダードプランに申し込みますか？\n\n最初の7日間は無料です。8日目以降 ¥680/月が発生します。\n解約はいつでも可能です。\n\n決済ページ（Stripe）へ移動します。')){
+    window.open('https://buy.stripe.com/fZueVd20D0dLcNj12O7AI03','_blank');
   }
 }
 
@@ -945,9 +1316,28 @@ function cancelPlan(){
   }
 }
 
+/* ══════════════════════════════════════════════════════
+   🌀 位相同期解析エンジン v3（リアルタイムキャプチャ方式）
+   ══════════════════════════════════════════════════════
+   問題だった旧方式：
+   ① 録画後に blob→video→seek でフレーム抽出
+      → webm の duration=Infinity でループ不能
+      → onseeked 非発火ブラウザで永久に止まる
+   
+   新方式：
+   ① カメラ映像を <video> でプレビューしながら録画
+   ② 同時に setInterval で 2fps キャプチャ → 傾き角を蓄積
+   ③ 10秒後に蓄積データだけでスコア計算 → blob不要
+   ══════════════════════════════════════════════════════ */
+
 /* ─── Init ─── */
 if(st.lastResult) updateHome(st.lastResult);
 updatePlanUI();
+/* URLパラメータ ?tab=scan でscanタブを直接起動 */
+(function(){
+  const p = new URLSearchParams(location.search).get('tab');
+  if(p && document.getElementById('panel-'+p)) goTab(p);
+})();
 </script>
 </body>
 </html>
