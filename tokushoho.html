@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特定商取引法に基づく表記 | agozure / 直立医学研究所</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf8f0; --bg2:#f8f0e4; --bg3:#f3e8d4;
+  --surface:#ffffff; --surface2:#fef9f4;
+  --orange:#d4560a; --amber:#c07c08; --amber-l:#d4960a;
+  --text:#2a1806; --text-mid:#543018; --text-sub:#7c4c28; --text-dim:#a87050;
+  --border:rgba(192,124,8,0.18); --border2:rgba(192,124,8,0.32);
+  --font-sans:'DM Sans','Noto Sans JP',sans-serif;
+  --font-serif:'Noto Serif JP',serif;
+  --font-mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.85;
+  overflow-x:hidden;
+}
+
+/* ── HEADER ── */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(253,248,240,0.95);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 1px 4px rgba(192,124,8,0.08);
+}
+.header-inner{
+  max-width:1100px;margin:0 auto;padding:0 2rem;
+  height:64px;display:flex;align-items:center;justify-content:space-between;
+}
+.logo-group{display:flex;flex-direction:column;gap:1px;text-decoration:none;}
+.logo-main{
+  font-family:var(--font-serif);font-size:15px;font-weight:600;
+  color:var(--text);letter-spacing:0.04em;
+}
+.logo-sub{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:0.22em;text-transform:uppercase;}
+nav{display:flex;gap:24px;align-items:center;}
+nav a{
+  color:var(--text-sub);text-decoration:none;font-size:13px;
+  letter-spacing:0.03em;transition:color .15s;
+}
+nav a:hover{color:var(--orange);}
+.nav-contact{
+  background:linear-gradient(135deg,var(--orange),var(--amber));
+  color:#fff !important;
+  padding:6px 16px;border-radius:6px;font-weight:500 !important;
+  transition:opacity .15s !important;
+}
+.nav-contact:hover{opacity:0.88 !important;}
+
+/* ── PAGE HERO ── */
+.page-hero{
+  background:linear-gradient(160deg,#fff8ee 0%,#f3e8d4 100%);
+  padding:100px 2rem 52px;
+  border-bottom:1px solid var(--border);
+}
+.page-hero-inner{max-width:900px;margin:0 auto;}
+.page-hero-label{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:0.35em;
+  color:var(--orange);text-transform:uppercase;margin-bottom:12px;
+}
+.page-hero h1{
+  font-family:var(--font-serif);
+  font-size:clamp(22px,3vw,34px);font-weight:600;
+  color:var(--text);line-height:1.4;margin-bottom:10px;
+}
+.page-hero p{font-size:14px;color:var(--text-sub);}
+
+/* ── MAIN ── */
+.tokushoho-wrap{
+  max-width:900px;margin:0 auto;
+  padding:56px 2rem 80px;
+}
+.notice-box{
+  background:rgba(192,124,8,0.06);
+  border:1px solid var(--border2);
+  border-radius:10px;padding:18px 22px;
+  margin-bottom:40px;font-size:14px;color:var(--text-mid);line-height:1.9;
+}
+.section-heading{
+  display:flex;align-items:center;gap:10px;
+  margin:40px 0 16px;
+}
+.section-heading-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--amber);flex-shrink:0;
+}
+.section-heading-label{
+  font-family:var(--font-serif);font-size:17px;font-weight:600;
+  color:var(--text);white-space:nowrap;
+}
+.section-heading-line{
+  flex:1;height:1px;background:var(--border);
+}
+
+/* ── TABLE ── */
+.tokushoho-table{
+  width:100%;border-collapse:collapse;
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(192,124,8,0.06);
+  margin-bottom:32px;
+}
+.tokushoho-table thead tr{background:var(--bg2);}
+.tokushoho-table th{
+  padding:12px 18px;font-size:12px;font-weight:600;
+  color:var(--text-sub);letter-spacing:0.08em;
+  text-align:left;border-bottom:1px solid var(--border);
+}
+.tokushoho-table td{
+  padding:14px 18px;font-size:14px;color:var(--text-mid);
+  border-bottom:1px solid rgba(192,124,8,0.08);
+  vertical-align:top;line-height:1.9;
+}
+.tokushoho-table tr:last-child td{border-bottom:none;}
+.tokushoho-table td:first-child{
+  font-weight:500;color:var(--text);
+  min-width:160px;background:var(--surface2);
+  border-right:1px solid var(--border);
+}
+.tokushoho-table tr:hover td{background:rgba(192,124,8,0.025);}
+.tokushoho-table tr:hover td:first-child{background:rgba(192,124,8,0.05);}
+
+/* Notes */
+.note-box{
+  padding:16px 20px;background:rgba(192,124,8,0.04);
+  border:1px solid var(--border);border-radius:8px;
+  font-size:13px;color:var(--text-sub);line-height:1.9;
+  margin-top:24px;
+}
+.note-box strong{color:var(--text-mid);font-weight:600;}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:36px 2rem;
+}
+.footer-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+}
+.footer-logo{
+  font-family:var(--font-serif);font-size:15px;font-weight:600;
+  color:var(--text);
+}
+.footer-copy{font-size:12px;color:var(--text-dim);margin-top:4px;}
+.footer-back{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--orange);text-decoration:none;
+  font-weight:500;transition:opacity .15s;
+}
+.footer-back:hover{opacity:0.75;}
+
+@media(max-width:640px){
+  nav{display:none;}
+  .tokushoho-table td:first-child{min-width:100px;}
+  .tokushoho-wrap{padding:40px 1rem 60px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo-group" style="text-decoration:none;">
+      <span class="logo-main">直立医学研究所</span>
+      <span class="logo-sub">Upright Medicine Research Institute</span>
+    </a>
+    <nav>
+      <a href="index.html">トップ</a>
+      <a href="index.html#theory">理論</a>
+      <a href="index.html#apps">アプリ</a>
+      <a href="tokushoho.html" style="color:var(--amber-light);">特商法表記</a>
+      <a href="index.html#contact" class="nav-contact">お問い合わせ</a>
+    </nav>
+  </div>
+</header>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-hero-label">Legal Notice</div>
+    <h1>特定商取引法に基づく表記</h1>
+    <p>通信販売に関する表示事項（特定商取引法第11条）</p>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="tokushoho-wrap">
+
+  <div class="notice-box">
+    <p>本ページは、特定商取引法（第11条）および割賦販売法に基づき、当研究所が提供するオンラインサービス・アプリ（BodyAxis・AxisPro 等）の通信販売に関する情報を開示するものです。</p>
+  </div>
+
+  <!-- 必須項目 -->
+  <div class="section-heading">
+    <span class="section-heading-dot"></span>
+    <span class="section-heading-label">必須開示項目</span>
+    <span class="section-heading-line"></span>
+  </div>
+
+  <table class="tokushoho-table">
+    <thead>
+      <tr>
+        <th>項目</th>
+        <th>内容</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>販売事業者名</td>
+        <td>
+          臼井五郎（個人事業主）
+          <span class="td-sub">屋号：直立医学研究所 / 図書館前歯科</span>
+          <p class="td-note">※ 法人名（登記商号）については、請求があった場合は遅滞なく開示いたします。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>運営責任者</td>
+        <td>臼井五郎</td>
+      </tr>
+      <tr>
+        <td>所在地</td>
+        <td>
+          〒417-0052<br>
+          静岡県富士市中央町3-9-28
+          <span class="td-sub">（富士市立中央図書館前）</span>
+        </td>
+      </tr>
+      <tr>
+        <td>電話番号</td>
+        <td>
+          0545-55-1050
+          <span class="td-sub">受付時間：平日 9:00〜12:00 / 14:00〜18:00、土曜 9:00〜12:00</span>
+          <span class="td-sub">定休日：木曜・日曜・祝日</span>
+          <p class="td-note">※ お電話は臨床相談予約に限ります。アプリ・サービスに関するお問い合わせはメールにてお受けします。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>メールアドレス</td>
+        <td>
+          <a href="mailto:usui@agozure.com" style="color:var(--teal);text-decoration:none;">usui@agozure.com</a>
+          <p class="td-note">※ メールでのお問い合わせは、24時間受け付けております（返信は営業時間内）。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>販売価格</td>
+        <td>
+          各サービス・アプリのご案内ページに記載の金額（消費税込み）
+          <p class="td-note">※ 価格はサービス内容により異なります。お申し込み前に各ページをご確認ください。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>追加手数料</td>
+        <td>
+          なし
+          <p class="td-note">※ 表示価格以外に追加費用は発生しません。クレジットカード決済手数料もいただきません。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>利用可能な決済手段</td>
+        <td>クレジットカード（Visa・Mastercard・American Express・JCB 等）</td>
+      </tr>
+      <tr>
+        <td>決済期間</td>
+        <td>
+          クレジットカード決済は即時処理されます。
+          <p class="td-note">※ お支払い完了後、直ちにサービスをご利用いただけます。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>サービス提供時期</td>
+        <td>
+          お申し込み・決済完了後、すぐにご利用いただけます。
+          <p class="td-note">※ デジタルコンテンツ・アプリはオンラインで即時提供されます。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>キャンセル・返品・返金について</td>
+        <td>
+          <strong style="font-size:0.85rem;color:var(--navy);">【サブスクリプション・継続サービスの場合】</strong><br>
+          マイページまたは当研究所へのご連絡（メール）により、いつでもキャンセルが可能です。キャンセル手続き完了後、次回更新日以降の請求は発生しません。すでに提供済みの期間分については原則として返金いたしかねます。
+          <br><br>
+          <strong style="font-size:0.85rem;color:var(--navy);">【不具合・瑕疵の場合】</strong><br>
+          当研究所の責任によるサービスの不具合・提供不能が生じた場合は、<a href="mailto:usui@agozure.com" style="color:var(--teal);text-decoration:none;">usui@agozure.com</a> までご連絡ください。状況を確認のうえ、速やかに対応（代替サービス提供または返金）いたします。
+          <br><br>
+          <strong style="font-size:0.85rem;color:var(--navy);">【デジタルコンテンツの性質上】</strong><br>
+          提供開始後のデジタルコンテンツについては、お客様のご都合による返品・返金には原則対応いたしておりません。ご購入前に内容をよくご確認ください。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- お問い合わせ誘導 -->
+  <div class="section-heading">
+    <span class="section-heading-dot"></span>
+    <span class="section-heading-label">お問い合わせ</span>
+    <span class="section-heading-line"></span>
+  </div>
+
+  <table class="tokushoho-table">
+    <thead>
+      <tr>
+        <th>窓口</th>
+        <th>連絡先</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>メール（推奨）</td>
+        <td>
+          <a href="mailto:usui@agozure.com" style="color:var(--teal);text-decoration:none;">usui@agozure.com</a>
+          <p class="td-note">アプリ・サービスに関するご質問はメールにてお受けします。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>電話</td>
+        <td>
+          0545-55-1050
+          <span class="td-sub">平日 9:00〜12:00 / 14:00〜18:00、土曜 9:00〜12:00（木・日・祝休）</span>
+          <p class="td-note">電話は臨床相談予約のみ対応しております。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>ウェブサイト</td>
+        <td><a href="https://www.agozure.com" style="color:var(--teal);text-decoration:none;">https://www.agozure.com</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="back-link-wrap">
+    <a href="index.html" class="back-link">← トップページに戻る</a>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">直立医学研究所 / 図書館前歯科</div>
+      <div class="footer-copy">© 2024 臼井五郎. All rights reserved.</div>
+    </div>
+    <a href="index.html" class="footer-back">
+      ← ホームページへ戻る
+    </a>
+  </div>
+</footer>
+
+</body>
+</html>
