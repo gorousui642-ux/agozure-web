@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agozure | 身体のねじれを、可視化する</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400;600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf8f2; --bg2:#f9f2e8; --bg3:#f3ead8;
+  --surface:#ffffff; --surface2:#fef9f3;
+  --orange:#e8620a; --amber:#d4880a; --coral:#e05470;
+  --gold:#c8960a; --warm1:#7a3a0a; --warm2:#5a2a06;
+  --glow-o:rgba(232,98,10,0.12); --glow-a:rgba(212,136,10,0.10);
+  --text:#2d1a08; --text-b:#3d2510; --text-mid:#5a3820;
+  --text-sub:#8a5c38; --text-dim:#b8885a;
+  --border:rgba(232,98,10,0.15); --border2:rgba(232,98,10,0.30);
+  --font-sans:'DM Sans','Noto Sans JP',sans-serif;
+  --font-serif:'Noto Serif JP',serif;
+  --font-mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  font-weight:400;
+  line-height:1.8;
+  overflow-x:hidden;
+}
+/* Grain overlay removed */
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:64px;
+  background:rgba(253,248,242,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(232,98,10,0.15);
+}
+.nav-logo{
+  font-family:var(--font-serif);font-size:18px;font-weight:600;
+  color:var(--text);letter-spacing:0.02em;
+}
+.nav-logo span{
+  display:block;font-family:var(--font-mono);font-size:9px;
+  font-weight:300;color:var(--text-dim);letter-spacing:0.3em;
+  text-transform:uppercase;margin-top:1px;
+}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{color:var(--text-sub);text-decoration:none;font-size:13px;transition:color .15s;}
+.nav-links a:hover{color:var(--orange);}
+.nav-cta{display:flex;gap:10px;}
+.btn-nav{padding:7px 18px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .15s;font-family:var(--font-sans);}
+.btn-ghost{border:1px solid var(--border2);color:var(--orange);background:transparent;}
+.btn-ghost:hover{background:rgba(249,115,22,0.1);}
+.btn-warm{background:linear-gradient(135deg,var(--orange),var(--amber));color:#0e0a08;border:none;font-weight:600;}
+.btn-warm:hover{opacity:0.9;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:100px 48px 80px;
+  position:relative;overflow:hidden;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,98,10,0.06) 0%, transparent 60%),
+             radial-gradient(ellipse 60% 80% at 80% 60%, rgba(212,136,10,0.04) 0%, transparent 60%),
+             var(--bg);
+}
+.hero-inner{max-width:1160px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:0.3em;
+  color:var(--orange);text-transform:uppercase;
+  border:1px solid var(--border2);border-radius:20px;
+  padding:4px 14px;margin-bottom:24px;
+  background:rgba(249,115,22,0.06);
+}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+.hero-title{
+  font-family:var(--font-serif);
+  font-size:clamp(32px,4vw,56px);
+  font-weight:600;line-height:1.3;
+  color:var(--text);margin-bottom:20px;
+  letter-spacing:0.02em;
+}
+.hero-title em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--orange),var(--amber));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:15px;color:var(--text-mid);line-height:2;margin-bottom:40px;max-width:480px;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:48px;}
+.btn-primary{
+  padding:14px 32px;
+  background:linear-gradient(135deg,var(--orange),var(--amber));
+  color:#0e0a08;border:none;border-radius:8px;
+  font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;
+  transition:all .2s;box-shadow:0 4px 20px rgba(249,115,22,0.35);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(249,115,22,0.45);}
+.btn-outline{
+  padding:14px 32px;border:1.5px solid var(--border2);
+  color:var(--text);background:transparent;border-radius:8px;
+  font-size:14px;cursor:pointer;text-decoration:none;transition:all .15s;
+}
+.btn-outline:hover{border-color:var(--orange);color:var(--orange);}
+.hero-stats{display:flex;gap:32px;}
+.stat{border-left:2px solid var(--border2);padding-left:16px;}
+.stat-num{font-family:var(--font-mono);font-size:24px;font-weight:300;color:var(--orange);line-height:1;}
+.stat-label{font-size:11px;color:var(--text-sub);margin-top:2px;letter-spacing:0.05em;}
+
+/* ── HERO VIZ ── */
+.hero-viz{position:relative;height:480px;display:flex;align-items:center;justify-content:center;}
+#heroCanvas{width:100%;height:100%;}
+
+/* ── HOW IT WORKS ── */
+.how{padding:96px 0;position:relative;}
+.container{max-width:1160px;margin:0 auto;padding:0 48px;}
+.sec-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.35em;color:var(--orange);text-transform:uppercase;margin-bottom:12px;}
+.sec-title{font-family:var(--font-serif);font-size:clamp(24px,3vw,38px);font-weight:600;color:var(--text);line-height:1.4;margin-bottom:16px;}
+.sec-sub{font-size:15px;color:var(--text-mid);line-height:2;max-width:560px;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px;}
+.step{padding:32px 24px;background:#fff;position:relative;overflow:hidden;transition:all .2s;}
+.step:first-child{border-radius:12px 0 0 12px;}
+.step:last-child{border-radius:0 12px 12px 0;}
+.step::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .2s;}
+.step:hover::before{opacity:1;}
+.step:hover{background:var(--surface2);}
+.step-num{font-family:var(--font-mono);font-size:48px;font-weight:300;color:rgba(249,115,22,0.12);line-height:1;margin-bottom:16px;}
+.step-icon{font-size:28px;margin-bottom:14px;}
+.step-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.step-desc{font-size:13px;color:var(--text-sub);line-height:1.8;}
+.step-arrow{position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:2px;height:32px;background:var(--border);z-index:1;}
+.step:last-child .step-arrow{display:none;}
+
+/* ── METHOD ── */
+.method{padding:96px 0;background:var(--bg2);}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:56px;}
+.method-text p{font-size:15px;color:var(--text-mid);line-height:2;margin-bottom:16px;}
+.method-note{margin-top:20px;padding:16px 20px;background:rgba(249,115,22,0.06);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;}
+.method-note p{font-size:13px;color:var(--text-mid);line-height:1.9;}
+.hub-list{margin-top:24px;display:flex;flex-direction:column;gap:10px;}
+.hub-item{display:flex;gap:12px;align-items:center;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+.hub-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+.hub-text{font-size:13px;color:var(--text-mid);}
+.hub-text strong{color:var(--text);font-weight:500;}
+.method-steps{display:flex;flex-direction:column;gap:14px;}
+.mstep{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;transition:all .2s;}
+.mstep:hover{border-color:var(--border2);background:var(--surface2);}
+.mstep-badge{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:13px;flex-shrink:0;
+  font-weight:500;
+}
+.badge-a{background:rgba(249,115,22,0.15);color:var(--orange);}
+.badge-b{background:rgba(245,158,11,0.15);color:var(--amber);}
+.mstep-body h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.mstep-body p{font-size:13px;color:var(--text-sub);line-height:1.8;}
+.infobox{padding:14px 16px;border-radius:10px;font-size:13px;color:var(--text-mid);line-height:1.9;}
+.ib-warm{background:rgba(249,115,22,0.06);border:1px solid rgba(249,115,22,0.18);}
+.ib-gray{background:var(--surface);border:1px solid var(--border);}
+
+/* ── DENTAL ── */
+.dental{padding:96px 0;}
+.dental-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;}
+.d-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:24px 20px;transition:all .2s;
+}
+.d-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px);}
+.d-icon{font-size:24px;margin-bottom:12px;}
+.d-card h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.d-card p{font-size:12px;color:var(--text-sub);line-height:1.8;}
+.ins-tag{display:inline-block;margin-top:8px;padding:2px 8px;background:rgba(245,158,11,0.1);color:var(--amber);border-radius:4px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;}
+.ins-note{margin-top:36px;padding:18px 22px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.18);border-radius:10px;font-size:14px;color:var(--text-mid);line-height:1.9;max-width:700px;}
+.ins-note strong{color:var(--amber);}
+
+/* ── APPS ── */
+.apps{padding:96px 0;background:var(--bg2);}
+.apps-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px;}
+.app-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:36px 32px;text-decoration:none;color:inherit;
+  display:block;transition:all .25s;position:relative;overflow:hidden;
+}
+.app-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--orange),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.app-card.pro::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.app-card:hover{background:var(--surface2);border-color:rgba(249,115,22,0.3);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4),0 0 32px rgba(249,115,22,0.06);}
+.app-card:hover::before{opacity:1;}
+.app-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 12px;
+  border-radius:20px;font-family:var(--font-mono);font-size:10px;
+  letter-spacing:0.12em;margin-bottom:20px;
+}
+.b-user{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.25);}
+.b-pro{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+.app-name{font-family:var(--font-serif);font-size:26px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.app-tag{font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:0.2em;margin-bottom:16px;text-transform:uppercase;}
+.app-desc{font-size:14px;color:var(--text-mid);line-height:2;margin-bottom:22px;}
+.plan-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.plan-row:last-child{border-bottom:none;}
+.plan-nm{color:var(--text-mid);}
+.plan-pr{font-family:var(--font-mono);font-size:12px;color:var(--orange);}
+.plan-free{font-family:var(--font-mono);font-size:12px;color:var(--amber);}
+.app-card.pro .plan-pr{color:var(--amber);}
+.app-features{list-style:none;margin:18px 0 26px;}
+.app-features li{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text-mid);padding:4px 0;}
+.app-features li::before{content:'◆';color:var(--orange);font-size:8px;flex-shrink:0;margin-top:5px;}
+.app-card.pro .app-features li::before{color:var(--amber);}
+.app-cta{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--orange);}
+.app-card.pro .app-cta{color:var(--amber);}
+.app-cta svg{transition:transform .15s;}
+.app-card:hover .app-cta svg{transform:translateX(5px);}
+
+/* ── MANGA ── */
+.manga-section{padding:96px 0;}
+.manga-viewer{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:48px;box-shadow:0 4px 20px rgba(232,98,10,0.08);}
+.manga-hdr{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--surface2);}
+.manga-hdr-t{font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;color:var(--text-sub);}
+.manga-ct{font-family:var(--font-mono);font-size:12px;color:var(--orange);}
+.manga-frame{aspect-ratio:9/16;max-height:560px;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
+.manga-ph{text-align:center;padding:40px;}
+.manga-ph .pn{font-family:var(--font-mono);font-size:80px;font-weight:300;color:rgba(249,115,22,0.1);line-height:1;margin-bottom:14px;}
+.manga-ph p{color:var(--text-dim);font-size:13px;line-height:1.8;}
+.manga-nav{padding:10px 24px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--border);background:var(--bg2);}
+.manga-btn{padding:7px 18px;border:1px solid var(--border2);background:transparent;color:var(--text-mid);border-radius:6px;font-size:12px;cursor:pointer;transition:all .15s;}
+.manga-btn:hover{border-color:var(--orange);color:var(--orange);}
+.manga-dots{display:flex;gap:5px;}
+.manga-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all .15s;}
+.manga-dot.active{background:var(--orange);box-shadow:0 0 6px rgba(249,115,22,0.5);}
+
+/* ── VIDEO ── */
+.video-sec{padding:96px 0;background:var(--surface2);}
+.video-embed{margin-top:48px;border-radius:12px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9;background:var(--bg3);position:relative;}
+.video-embed iframe{width:100%;height:100%;border:none;}
+.video-ov{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(249,115,22,0.08),var(--bg3));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;cursor:pointer;}
+.play-btn{width:72px;height:72px;border-radius:50%;background:rgba(249,115,22,0.15);border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(249,115,22,0.3);transition:all .2s;}
+.play-btn:hover{background:rgba(249,115,22,0.3);transform:scale(1.1);}
+.video-cap{font-size:14px;color:var(--text-mid);text-align:center;font-weight:500;}
+.video-sub{font-size:12px;color:var(--text-dim);}
+
+/* ── CONTACT ── */
+.contact-sec{padding:96px 0;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;margin-top:52px;align-items:start;}
+.ci h3{font-family:var(--font-serif);font-size:20px;font-weight:600;margin-bottom:16px;color:var(--text);}
+.ci p{font-size:14px;color:var(--text-mid);line-height:2;margin-bottom:22px;}
+.info-row{display:flex;gap:14px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.info-row:last-child{border-bottom:none;}
+.info-k{font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;min-width:58px;padding-top:3px;}
+.info-v{font-size:13px;color:var(--text-mid);line-height:1.8;}
+.info-v a{color:var(--orange);text-decoration:none;}
+.info-v a:hover{text-decoration:underline;}
+.cform{display:flex;flex-direction:column;gap:13px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:12px;color:var(--text-mid);font-weight:500;}
+.form-input,.form-textarea,.form-select{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:8px;padding:11px 14px;color:var(--text);
+  font-family:var(--font-sans);font-size:14px;outline:none;transition:border-color .15s;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,0.1);}
+.form-textarea{resize:vertical;min-height:110px;}
+.form-select option{background:var(--bg3);}
+.btn-submit{
+  padding:13px;background:linear-gradient(135deg,var(--orange),var(--amber));
+  color:#0e0a08;border:none;border-radius:8px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .15s;margin-top:4px;
+}
+.btn-submit:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(249,115,22,0.35);}
+
+/* ── FOOTER ── */
+footer{padding:52px 0 36px;background:var(--bg3);border-top:1px solid var(--border);}
+.footer-inner{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;}
+.footer-logo{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.footer-tag{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:0.25em;text-transform:uppercase;margin-bottom:14px;}
+.footer-copy{font-size:12px;color:var(--text-dim);}
+.footer-links{display:flex;flex-direction:column;gap:8px;text-align:right;}
+.footer-links a{font-size:12px;color:var(--text-sub);text-decoration:none;transition:color .15s;}
+.footer-links a:hover{color:var(--orange);}
+
+/* ── DIVIDER ── */
+.sec-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0;}
+
+/* ── SCROLL FADE ── */
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
+.fade-up.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}.nav-links{display:none;}
+  .hero,.container{padding-left:20px;padding-right:20px;}
+  .hero{padding-top:90px;padding-bottom:56px;}
+  .hero-inner,.method-grid,.apps-grid,.contact-grid{grid-template-columns:1fr;}
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .dental-grid{grid-template-columns:1fr 1fr;}
+  .hero-viz{height:280px;}
+  .step{border-radius:10px !important;}
+  .step-arrow{display:none;}
+  .footer-inner{grid-template-columns:1fr;}.footer-links{text-align:left;}
+}
+@media(max-width:500px){.dental-grid,.steps-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">agozure<span>Body Phase Navigation</span></div>
+  <ul class="nav-links">
+    <li><a href="#method">静岡メソッド</a></li>
+    <li><a href="#dental">一般歯科</a></li>
+    <li><a href="#apps">アプリ</a></li>
+    <li><a href="#manga">マンガ</a></li>
+    <li><a href="#contact">お問い合わせ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="https://gorousui642-ux.github.io/bodyaxis-app/Bodyaxis_simple.html" class="btn-nav btn-ghost">BodyAxis</a>
+    <a href="https://gorousui642-ux.github.io/AxisPro/AxisPro_improved.html" class="btn-nav btn-warm">AxisPro</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">Body Phase Navigation System</div>
+      <h1 class="hero-title">身体のねじれを、<br><em>可視化する。</em></h1>
+      <p class="hero-sub">あなたの姿勢・呼吸・下顎のリズムは、今、同期しているか。蔵本モデルが示す「位相同期」で、からだの状態をリアルタイムに映し出します。</p>
+      <div class="hero-actions">
+        <a href="https://gorousui642-ux.github.io/bodyaxis-app/Bodyaxis_simple.html" class="btn-primary">今すぐ計測する（無料）</a>
+        <a href="#method" class="btn-outline">静岡メソッドとは</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num">76.6%</div><div class="stat-label">Score 0 達成率</div></div>
+        <div class="stat"><div class="stat-num">3層</div><div class="stat-label">位相同期解析</div></div>
+        <div class="stat"><div class="stat-num">10秒</div><div class="stat-label">計測時間</div></div>
+      </div>
+    </div>
+    <div class="hero-viz"><canvas id="heroCanvas"></canvas></div>
+  </div>
+</section>
+
+
+<!-- PHASE SYNC DIAGRAM - infographic after hero -->
+<section id="phase-diagram" style="padding:0 0 0 0;background:var(--bg);position:relative;z-index:1;">
+  <div style="max-width:1160px;margin:0 auto;padding:0 48px 72px;">
+    <div style="text-align:center;margin-bottom:32px;" class="fade-up">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.35em;color:var(--orange);text-transform:uppercase;margin-bottom:10px;">Kuramoto Phase Synchronization</div>
+      <h2 style="font-family:'Noto Serif JP',serif;font-size:clamp(20px,2.5vw,30px);font-weight:600;color:var(--text);line-height:1.45;">3つのリズムが同期するとき、からだは健康になる</h2>
+    </div>
+    <div class="fade-up" style="background:#fff;border:1px solid rgba(232,98,10,0.15);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(232,98,10,0.06);">
+      <canvas id="phaseDiagram" style="width:100%;display:block;" height="420"></canvas>
+    </div>
+  </div>
+</section>
+<!-- HOW IT WORKS -->
+<div class="sec-divider"></div>
+<section class="how" id="how">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">How it works</div>
+    <h2 class="sec-title fade-up">4ステップで、<br>身体位相が見える</h2>
+    <div class="steps-grid">
+      <div class="step fade-up">
+        <div class="step-num">01</div>
+        <div class="step-icon">📱</div>
+        <div class="step-title">撮る</div>
+        <div class="step-desc">スマートフォンで立位10秒。カウントダウンガイドに従うだけ。</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">02</div>
+        <div class="step-icon">🔬</div>
+        <div class="step-title">AI 解析</div>
+        <div class="step-desc">蔵本モデルが姿勢・呼吸・下顎の三層位相を自動計算。</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">03</div>
+        <div class="step-icon">🌀</div>
+        <div class="step-title">同期を見る</div>
+        <div class="step-desc">Body Sync Score と位相リングで直感的に身体状態を把握。</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">04</div>
+        <div class="step-icon">📈</div>
+        <div class="step-title">変化を追う</div>
+        <div class="step-desc">毎日記録が積み上がり、身体リズムの改善が一目で分かる。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<div class="sec-divider"></div>
+<section class="method" id="method">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">Shizuoka Method</div>
+    <h2 class="sec-title fade-up">静岡メソッド<br>——身体ねじれを解消する予防医療</h2>
+    <div class="method-grid">
+      <div class="fade-up">
+        <div class="method-text">
+          <p>静岡メソッドは、累積回旋（τ̂）によって生じた身体のねじれを、二つの術式で段階的に解消するハイブリッドアプローチです。徒手操作を使わず、身体の固有制御を活用します。</p>
+          <p>姿勢（低周波）・呼吸（中周波）・下顎（高周波）の三層位相が整うとき、身体は本来のリズムを取り戻します。</p>
+        </div>
+        <div class="method-note">
+          <p><strong style="color:var(--orange);">実績：</strong>Score 0（完全回旋解放）達成率 76.6%（47症例・第21回直立歯科医学研究会、北海道）</p>
+        </div>
+        <div class="hub-list">
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:2px;">三大機械ハブ</div>
+          <div class="hub-item"><div class="hub-dot" style="background:var(--orange);color:var(--orange);"></div><div class="hub-text"><strong>第1ハブ</strong>：頸胸移行部（C7–T1）</div></div>
+          <div class="hub-item"><div class="hub-dot" style="background:var(--amber);color:var(--amber);"></div><div class="hub-text"><strong>第2ハブ</strong>：横隔膜ドーム（T8–T12）</div></div>
+          <div class="hub-item"><div class="hub-dot" style="background:var(--coral);color:var(--coral);"></div><div class="hub-text"><strong>第3ハブ</strong>：胸腰移行部（T12–L2）</div></div>
+        </div>
+      </div>
+      <div class="method-steps fade-up">
+        <div class="mstep">
+          <div class="mstep-badge badge-a">A</div>
+          <div class="mstep-body">
+            <h4>術式A ── 非徒手・体軸回旋解放</h4>
+            <p>身体の固有制御（反射・呼吸・重力）を活用し、徒手操作なしで累積回旋を解放。低周波帯の位相を整えます。</p>
+          </div>
+        </div>
+        <div class="mstep">
+          <div class="mstep-badge badge-b">B</div>
+          <div class="mstep-body">
+            <h4>術式B ── スウィングリリース（咬合調整）</h4>
+            <p>下顎振動子の高周波帯介入。咬合の微細調整で三層同期を完成させます。</p>
+          </div>
+        </div>
+        <div class="infobox ib-gray">
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">適応例</div>
+          慢性腰痛・肩こり・頭痛・顎関節症 / 自律神経失調・睡眠障害・ブラキシズム / 原因不明の倦怠感・姿勢不良 / 慢性疾患の予防的管理
+        </div>
+        <div class="infobox ib-warm"><strong style="color:var(--orange);">保険外診療（自費）</strong>。初回検査・カウンセリング含む。詳細はお問い合わせください。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DENTAL -->
+<div class="sec-divider"></div>
+<section class="dental" id="dental">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">General Dentistry</div>
+    <h2 class="sec-title fade-up">一般歯科診療 <span style="font-size:0.65em;color:var(--text-sub);">保険取扱</span></h2>
+    <div class="fade-up" style="margin-top:28px;padding:24px 28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:680px;box-shadow:0 2px 8px rgba(232,98,10,0.06);">
+      <p style="font-size:15px;color:var(--text-mid);line-height:2;">
+        むし歯・歯周病クリーニング・抜歯・義歯などの一般歯科診療は<strong style="color:var(--orange);">保険診療対応</strong>。初診の方はお気軽にご相談ください。
+      </p>
+      <p style="font-size:13px;color:var(--text-sub);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+        ※ 静岡メソッド（位相同期・身体ねじれ解消）は保険外（自費）です。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- APPS -->
+<div class="sec-divider"></div>
+<section class="apps" id="apps">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">Applications</div>
+    <h2 class="sec-title fade-up">あなたの位相を、毎日見る</h2>
+    <p class="sec-sub fade-up">スマートフォン1台で始められる身体位相モニタリング。</p>
+    <div class="apps-grid">
+
+      <!-- BodyAxis card -->
+      <a href="https://gorousui642-ux.github.io/bodyaxis-app/Bodyaxis_simple.html" class="app-card fade-up">
+        <div class="app-badge b-user">一般向け</div>
+        <div class="app-name">BodyAxis</div>
+        <div class="app-tag">Personal Phase Monitor</div>
+        <p class="app-desc">毎日10秒撮影するだけで、身体のねじれ・同期スコアが分かる。変化が見えると、整えたくなる。</p>
+        <div style="margin-bottom:16px;">
+          <div class="plan-row"><span class="plan-nm">フリープラン</span><span class="plan-free">無料</span></div>
+          <div class="plan-row"><span class="plan-nm">スタンダードプラン</span><span class="plan-pr">¥680 / 月</span></div>
+        </div>
+        <ul class="app-features">
+          <li>Body Sync Score・位相リング表示</li>
+          <li>ブラキシズム計測 + 姿勢位相相関 <span style="color:var(--text-dim);font-size:11px;">Free</span></li>
+          <li>呼吸（無呼吸）計測 + 三層相関 <span style="color:var(--orange);font-size:11px;">Standard</span></li>
+        </ul>
+        <!-- アプリへ -->
+        <div class="app-cta" style="margin-bottom:14px;">
+          アプリを開く（無料）
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <!-- Stripe 申し込みボタン（カードリンクと独立） -->
+        <div onclick="event.preventDefault();event.stopPropagation();window.open('https://buy.stripe.com/fZueVd20D0dLcNj12O7AI03','_blank')"
+          style="display:block;width:100%;padding:13px;
+            background:linear-gradient(135deg,var(--orange),var(--amber));
+            color:#fff;border-radius:9px;text-align:center;
+            font-size:13px;font-weight:600;
+            box-shadow:0 3px 12px rgba(212,86,10,0.25);
+            transition:opacity .15s;cursor:pointer;"
+          onmouseover="this.style.opacity='0.88'"
+          onmouseout="this.style.opacity='1'">
+          💳 スタンダードプランに申し込む（7日間無料）
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--text-dim);margin-top:7px;">
+          8日目以降 ¥680/月（税込）・解約いつでも可
+        </div>
+      </a>
+
+      <!-- AxisPro card -->
+      <a href="https://gorousui642-ux.github.io/AxisPro/AxisPro_improved.html" class="app-card pro fade-up">
+        <div class="app-badge b-pro">クリニック向け</div>
+        <div class="app-name">AxisPro</div>
+        <div class="app-tag">Clinical Phase Analytics</div>
+        <p class="app-desc">クリニック専用の多層解析ツール。正面・側面二方向撮影と患者データ集積で、治療効果を可視化。</p>
+        <div style="margin-bottom:16px;">
+          <div class="plan-row"><span class="plan-nm">スタータープラン</span><span class="plan-pr">¥3,800 / 月</span></div>
+        </div>
+        <ul class="app-features">
+          <li>正面・側面 二方向解析・S/P/Aスコア</li>
+          <li>患者登録・データ集積（無制限）</li>
+          <li>経時変化グラフ・臨床所見レポート</li>
+        </ul>
+        <!-- アプリへ -->
+        <div class="app-cta" style="color:var(--amber);margin-bottom:14px;">
+          アプリを開く
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <!-- Stripe 申し込みボタン（カードリンクと独立） -->
+        <div onclick="event.preventDefault();event.stopPropagation();window.open('https://buy.stripe.com/9B628r6gT3pXcNj6n87AI04','_blank')"
+          style="display:block;width:100%;padding:13px;
+            background:linear-gradient(135deg,var(--amber),var(--orange));
+            color:#fff;border-radius:9px;text-align:center;
+            font-size:13px;font-weight:600;
+            box-shadow:0 3px 12px rgba(192,124,8,0.25);
+            transition:opacity .15s;cursor:pointer;"
+          onmouseover="this.style.opacity='0.88'"
+          onmouseout="this.style.opacity='1'">
+          💳 施術者プランに申し込む（14日間無料）
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--text-dim);margin-top:7px;">
+          15日目以降 ¥3,800/月（税込）・解約いつでも可
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- MANGA -->
+<div class="sec-divider"></div>
+<section class="manga-section" id="manga">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">Manga</div>
+    <h2 class="sec-title fade-up">マンガで読む直立医学</h2>
+    <p class="sec-sub fade-up">「なぜ歯の噛み合わせが全身につながるのか」——18ページで直感的に解説。</p>
+    <div class="manga-viewer fade-up">
+      <div class="manga-hdr">
+        <span class="manga-hdr-t">直立医学 導入マンガ（全18頁）</span>
+        <span class="manga-ct" id="mangaCounter">1 / 18</span>
+      </div>
+      <!-- Manga with side nav buttons -->
+      <div style="display:flex;align-items:stretch;background:#f8f4ef;">
+        <button id="mangaPrev" style="flex-shrink:0;width:52px;background:transparent;border:none;border-right:1px solid rgba(232,98,10,0.12);cursor:pointer;font-size:22px;color:#c85a08;transition:background .15s;padding:0;" onmouseover="this.style.background='rgba(232,98,10,0.08)'" onmouseout="this.style.background='transparent'" title="前のページ">‹</button>
+        <div id="mangaFrame" style="flex:1;max-height:72vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f4ef;">
+          <img id="mangaImg" src="" alt="直立医学マンガ"
+            style="max-width:100%;max-height:72vh;width:auto;height:auto;object-fit:contain;display:block;">
+        </div>
+        <button id="mangaNext" style="flex-shrink:0;width:52px;background:transparent;border:none;border-left:1px solid rgba(232,98,10,0.12);cursor:pointer;font-size:22px;color:#c85a08;transition:background .15s;padding:0;" onmouseover="this.style.background='rgba(232,98,10,0.08)'" onmouseout="this.style.background='transparent'" title="次のページ">›</button>
+      </div>
+      <div class="manga-nav">
+        <div class="manga-dots" id="mangaDots" style="flex:1;justify-content:center;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<div class="sec-divider"></div>
+<section class="video-sec" id="video">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">Video</div>
+    <h2 class="sec-title fade-up">ゆっくり直立歯科医学</h2>
+    <p class="sec-sub fade-up">「ゆっくり解説」形式で直立歯科医学の理論と臨床をわかりやすく解説するYouTubeシリーズ。</p>
+    <div class="fade-up" style="margin-top:40px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+      <a href="https://www.youtube.com/watch?v=ZBVSecNgXL4&t=67s"
+         target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;gap:12px;
+                padding:16px 32px;
+                background:linear-gradient(135deg,var(--orange),var(--amber));
+                color:#fff;border-radius:10px;text-decoration:none;
+                font-size:15px;font-weight:600;
+                box-shadow:0 4px 16px rgba(232,98,10,0.25);
+                transition:all .2s;"
+         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(232,98,10,0.35)'"
+         onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(232,98,10,0.25)'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+        </svg>
+        YouTubeで視聴する
+      </a>
+      <span style="font-size:13px;color:var(--text-sub);">「ゆっくり直立歯科医学」— チャンネル登録もぜひ</span>
+    </div>
+    <div class="fade-up" style="margin-top:24px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-radius:10px;max-width:560px;">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">最新動画</div>
+      <div style="font-size:14px;color:var(--text-mid);font-weight:500;">第1回：身体のねじれと直立歯科医学の基礎</div>
+      <div style="font-size:12px;color:var(--text-sub);margin-top:4px;">蔵本モデルによる位相同期と、τ̂→ΔTss→Φの病態カスケードをゆっくり解説。</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div class="sec-divider"></div>
+<section class="contact-sec" id="contact">
+  <div class="container">
+    <div class="sec-eyebrow fade-up">Contact</div>
+    <h2 class="sec-title fade-up">お問い合わせ</h2>
+    <div class="contact-grid">
+      <div class="ci fade-up">
+        <h3>直立医学研究所<br>図書館前歯科</h3>
+        <p>静岡メソッドの体験、AxisProの導入、一般歯科の受診についてお気軽にご連絡ください。</p>
+        <div class="info-row"><span class="info-k">住所</span><span class="info-v">〒417-0042<br>静岡県富士市中央町3-9-28</span></div>
+        <div class="info-row"><span class="info-k">Tel</span><span class="info-v"><a href="tel:0545551050">0545-55-1050</a></span></div>
+        <div class="info-row"><span class="info-k">Email</span><span class="info-v"><a href="mailto:usui@agozure.com">usui@agozure.com</a></span></div>
+        <div class="info-row"><span class="info-k">Web</span><span class="info-v"><a href="https://agozure.com">agozure.com</a></span></div>
+        <div class="info-row"><span class="info-k">院長</span><span class="info-v">臼井五郎（直立医学研究所 所長）</span></div>
+      </div>
+      <div class="fade-up">
+        <form class="cform" onsubmit="handleSubmit(event)">
+          <div class="form-group"><label class="form-label">お名前 *</label><input type="text" class="form-input" placeholder="山田 太郎" required></div>
+          <div class="form-group"><label class="form-label">メールアドレス *</label><input type="email" class="form-input" placeholder="example@email.com" required></div>
+          <div class="form-group">
+            <label class="form-label">お問い合わせの種類</label>
+            <select class="form-select">
+              <option value="">選択してください</option>
+              <option>静岡メソッドについて</option>
+              <option>一般歯科（受診）について</option>
+              <option>BodyAxisについて</option>
+              <option>AxisPro（クリニック導入）について</option>
+              <option>直立医学の理論・著書について</option>
+              <option>その他</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">メッセージ *</label><textarea class="form-textarea" placeholder="ご質問・ご要望をお書きください" required></textarea></div>
+          <button type="submit" class="btn-submit">送信する</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">agozure</div>
+        <div class="footer-tag">Body Phase Navigation · 直立医学研究所 / 図書館前歯科</div>
+        <div class="footer-copy">© 2024 臼井五郎. All rights reserved.</div>
+        <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+          <a href="tokushoho.html" style="font-size:11px;color:var(--text-dim);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--text-dim)'">特定商取引法に基づく表記</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="#method">静岡メソッド</a>
+        <a href="#dental">一般歯科</a>
+        <a href="https://gorousui642-ux.github.io/bodyaxis-app/Bodyaxis_simple.html">BodyAxis</a>
+        <a href="https://gorousui642-ux.github.io/AxisPro/AxisPro_improved.html">AxisPro</a>
+        <a href="tokushoho.html" style="color:var(--text-dim);">特定商取引法に基づく表記</a>
+        <a href="mailto:usui@agozure.com">usui@agozure.com</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* HERO CANVAS */
+const c=document.getElementById('heroCanvas');
+const ctx=c.getContext('2d');
+let W,H,t=0;
+function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;}
+resize();window.addEventListener('resize',resize);
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2;
+
+  /* Radial glow */
+  const rg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.min(W,H)*0.45);
+  rg.addColorStop(0,'rgba(232,98,10,0.05)');rg.addColorStop(1,'transparent');
+  ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);
+
+  /* Breathing ring */
+  const breathe=1+Math.sin(t*0.015)*0.04;
+  const bands=[
+    {r:Math.min(W,H)*0.13*breathe,col:'rgba(200,80,10,',label:'姿勢',ph:0},
+    {r:Math.min(W,H)*0.22*breathe,col:'rgba(170,110,10,',label:'呼吸・心拍',ph:0.7},
+    {r:Math.min(W,H)*0.33*breathe,col:'rgba(190,50,80,',label:'下顎',ph:1.4}
+  ];
+
+  /* Human silhouette hint */
+  const sh=Math.min(W,H)*0.5;
+  ctx.save();
+  ctx.translate(cx,cy);
+  /* Head */
+  ctx.beginPath();ctx.arc(0,-sh*0.36,sh*0.09,0,Math.PI*2);
+  ctx.strokeStyle='rgba(249,115,22,0.18)';ctx.lineWidth=1;ctx.stroke();
+  /* Body */
+  ctx.beginPath();ctx.moveTo(0,-sh*0.27);ctx.lineTo(0,sh*0.1);
+  ctx.strokeStyle='rgba(249,115,22,0.12)';ctx.lineWidth=1;ctx.stroke();
+  /* Shoulders */
+  ctx.beginPath();ctx.moveTo(-sh*0.18,-sh*0.18);ctx.lineTo(sh*0.18,-sh*0.18);
+  const tilt=Math.sin(t*0.008)*0.03;
+  ctx.setTransform(1,tilt,-tilt,1,cx,cy);
+  ctx.strokeStyle='rgba(249,115,22,0.35)';ctx.lineWidth=2;
+  ctx.moveTo(-sh*0.18,-sh*0.18);ctx.lineTo(sh*0.18,-sh*0.18);ctx.stroke();
+  /* Pelvis */
+  ctx.beginPath();ctx.moveTo(-sh*0.14,sh*0.05);ctx.lineTo(sh*0.14,sh*0.05);
+  ctx.strokeStyle='rgba(245,158,11,0.35)';ctx.lineWidth=2;ctx.stroke();
+  ctx.restore();
+
+  /* Axis line (oscillating) */
+  ctx.save();
+  ctx.translate(cx,cy);
+  const axisWave=Math.sin(t*0.02)*sh*0.04;
+  ctx.beginPath();
+  for(let i=-sh*0.5;i<=sh*0.5;i+=2){
+    const x=Math.sin(i*0.05+t*0.02)*axisWave;
+    i===-Math.round(sh*0.5)?ctx.moveTo(x,i):ctx.lineTo(x,i);
+  }
+  ctx.strokeStyle='rgba(249,115,22,0.4)';ctx.lineWidth=1.5;
+  ctx.shadowColor='rgba(249,115,22,0.6)';ctx.shadowBlur=8;
+  ctx.stroke();ctx.shadowBlur=0;
+  ctx.restore();
+
+  /* Phase rings */
+  bands.forEach((b,i)=>{
+    ctx.beginPath();ctx.arc(cx,cy,b.r,0,Math.PI*2);
+    ctx.strokeStyle=b.col+'0.12)';ctx.lineWidth=1;ctx.stroke();
+
+    /* Wave on ring */
+    ctx.beginPath();
+    for(let s=0;s<=200;s++){
+      const a=(s/200)*Math.PI*2;
+      const wv=Math.sin(a*5+t*(0.01+i*0.008)+b.ph)*b.r*0.06;
+      const x=cx+Math.cos(a)*(b.r+wv);
+      const y=cy+Math.sin(a)*(b.r+wv);
+      s===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle=b.col+'0.7)';ctx.lineWidth=1.5;
+    ctx.shadowColor=b.col+'0.4)';ctx.shadowBlur=6;ctx.stroke();ctx.shadowBlur=0;
+
+    /* Moving node */
+    const na=t*(0.012+i*0.006)+b.ph;
+    const nx=cx+Math.cos(na)*b.r,ny=cy+Math.sin(na)*b.r;
+    ctx.beginPath();ctx.arc(nx,ny,5,0,Math.PI*2);
+    ctx.fillStyle=b.col+'0.9)';
+    ctx.shadowColor=b.col+'0.6)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
+
+    if(W>360){
+      ctx.font='10px DM Mono,monospace';
+      ctx.fillStyle=b.col+'0.55)';
+      ctx.shadowBlur=0;
+      ctx.fillText(b.label,cx+b.r*0.65+8,cy-b.r*0.45+i*16-10);
+    }
+  });
+
+  /* Center dot */
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);
+  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,5);
+  cg.addColorStop(0,'rgba(249,115,22,1)');cg.addColorStop(1,'rgba(245,158,11,0.5)');
+  ctx.fillStyle=cg;ctx.shadowColor='rgba(249,115,22,0.8)';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+
+  t++;requestAnimationFrame(draw);
+}
+draw();
+
+/* SCROLL FADE */
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+/* MANGA */
+const MANGA_PAGES = [
+  "p01.jpg",
+  "p02.jpg",
+  "p03.jpg",
+  "p04.jpg",
+  "p05.jpg",
+  "p06.jpg",
+  "p07.jpg",
+  "p08.jpg",
+  "p09.jpg",
+  "p10.jpg",
+  "p11.jpg",
+  "p12.jpg",
+  "p13.jpg",
+  "p14.jpg",
+  "p15.jpg",
+  "p16.jpg",
+  "p17.jpg",
+  "p18.jpg",
+];
+let page=1;const total=18;
+const dotsEl=document.getElementById('mangaDots');
+for(let i=0;i<total;i++){const d=document.createElement('div');d.className='manga-dot'+(i===0?' active':'');d.onclick=()=>goPage(i+1);dotsEl.appendChild(d);}
+function goPage(n){
+  page=Math.max(1,Math.min(total,n));
+  document.getElementById('mangaCounter').textContent=page+' / '+total;
+  document.getElementById('mangaImg').src=MANGA_PAGES[page-1];
+  document.querySelectorAll('.manga-dot').forEach((d,i)=>d.classList.toggle('active',i===page-1));
+}
+document.getElementById('mangaPrev').onclick=()=>goPage(page-1);
+document.getElementById('mangaNext').onclick=()=>goPage(page+1);
+// Load first page on init
+window.addEventListener('DOMContentLoaded',()=>{ goPage(1); });
+
+/* VIDEO: embedded directly */
+
+/* CONTACT */
+function handleSubmit(e){
+  e.preventDefault();const btn=e.target.querySelector('.btn-submit');
+  btn.textContent='送信しました ✓';btn.style.background='linear-gradient(135deg,#059669,#10b981)';
+  setTimeout(()=>{btn.textContent='送信する';btn.style.background='';e.target.reset();},3000);
+}
+
+/* ── PHASE SYNC DIAGRAM ── */
+(function(){
+  const canvas = document.getElementById('phaseDiagram');
+  if(!canvas) return;
+  let W, H, t = 0;
+  function resize(){
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = 460;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Real biometric periods at 60fps:
+  // 0.1Hz posture  → 600 frames/cycle
+  // 0.2Hz breath   → 300 frames/cycle
+  // 1.0Hz jaw      →  60 frames/cycle
+  const layers = [
+    { label:'低周波  0.1 Hz  |  姿勢のリズム', sublabel:'直立姿勢のゆっくりした揺れ（体軸）',
+      periodF:600, amp:0.10, color:'rgba(200,80,10,', y:0.78, cycles:2 },
+    { label:'中周波  0.2 Hz  |  自律神経リズム', sublabel:'呼吸・心拍の周期（胸腹部）',
+      periodF:300, amp:0.072, color:'rgba(160,100,10,', y:0.50, cycles:2 },
+    { label:'高周波  1.0 Hz  |  頭部リズム', sublabel:'下顎の動き・脳波 θ 波',
+      periodF:60,  amp:0.040, color:'rgba(180,50,70,', y:0.22, cycles:2 },
+  ];
+
+  function draw(){
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+
+    // Light warm background
+    ctx.fillStyle = '#fffaf4';
+    ctx.fillRect(0,0,W,H);
+    const bgG = ctx.createLinearGradient(0,0,W,H);
+    bgG.addColorStop(0,'rgba(255,238,210,0.4)');
+    bgG.addColorStop(1,'rgba(253,248,242,0)');
+    ctx.fillStyle = bgG; ctx.fillRect(0,0,W,H);
+
+    const waveW = W * 0.64;
+    const waveX0 = W * 0.04;
+    const bx = W * 0.85, by = H * 0.50, bh = H * 0.74;
+
+    // ── Human body silhouette (clearly visible on light bg) ──
+    ctx.save();
+    const breathPulse = 1 + Math.sin(t * 2*Math.PI / layers[1].periodF) * 0.014;
+    ctx.translate(bx, by * breathPulse);
+    ctx.strokeStyle = '#b84e08';
+    ctx.lineWidth = 2.8;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.arc(0, -bh*0.41, bh*0.085, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-bh*0.325); ctx.lineTo(0,-bh*0.275); ctx.stroke();
+    const shTilt = Math.sin(t * 2*Math.PI / layers[0].periodF) * 0.05;
+    ctx.beginPath();
+    ctx.moveTo(-bh*0.18, -bh*0.24 + bh*0.18*shTilt);
+    ctx.lineTo(+bh*0.18, -bh*0.24 - bh*0.18*shTilt);
+    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-bh*0.275); ctx.lineTo(0,bh*0.07); ctx.stroke();
+    const hpTilt = -shTilt*0.55;
+    ctx.beginPath();
+    ctx.moveTo(-bh*0.13, bh*0.07 + bh*0.13*hpTilt);
+    ctx.lineTo(+bh*0.13, bh*0.07 - bh*0.13*hpTilt);
+    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-bh*0.065,bh*0.07); ctx.lineTo(-bh*0.08,bh*0.37); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(+bh*0.065,bh*0.07); ctx.lineTo(+bh*0.08,bh*0.37); ctx.stroke();
+    ctx.strokeStyle = '#c0384a'; ctx.lineWidth = 2.2;
+    const jawOff = Math.sin(t * 2*Math.PI / layers[2].periodF) * bh*0.013;
+    ctx.beginPath();
+    ctx.moveTo(-bh*0.055, -bh*0.365 + jawOff);
+    ctx.lineTo(+bh*0.055, -bh*0.365 + jawOff);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.font = 'bold 11px DM Mono, monospace';
+    ctx.fillStyle = 'rgba(100,50,10,0.65)';
+    ctx.textAlign = 'center';
+    ctx.fillText('位相同期', bx, by + bh*0.47);
+    ctx.font = '9px DM Mono, monospace';
+    ctx.fillStyle = 'rgba(100,50,10,0.40)';
+    ctx.fillText('Phase Sync', bx, by + bh*0.53);
+    ctx.textAlign = 'left';
+    ctx.restore();
+
+    // ── Waveforms ──
+    layers.forEach((layer, li) => {
+      const cy = H * layer.y;
+      const amp = H * layer.amp;
+      const scrollOffset = (t / layer.periodF) * waveW;
+
+      ctx.save();
+      ctx.font = 'bold 11px DM Mono, monospace';
+      ctx.fillStyle = layer.color + '0.92)';
+      ctx.fillText(layer.label, waveX0, cy - amp - 17);
+      ctx.font = '10px Noto Sans JP, sans-serif';
+      ctx.fillStyle = layer.color + '0.60)';
+      ctx.fillText(layer.sublabel, waveX0, cy - amp - 5);
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.moveTo(waveX0, cy); ctx.lineTo(waveX0+waveW, cy);
+      ctx.strokeStyle = layer.color + '0.12)';
+      ctx.lineWidth = 1; ctx.stroke();
+
+      ctx.beginPath();
+      for(let x=0; x<=waveW; x++){
+        const phase = ((x + scrollOffset) / waveW) * Math.PI * 2 * layer.cycles;
+        const y = cy + Math.sin(phase) * amp;
+        x===0 ? ctx.moveTo(waveX0+x, y) : ctx.lineTo(waveX0+x, y);
+      }
+      ctx.strokeStyle = layer.color + '0.88)';
+      ctx.lineWidth = li===0 ? 3.0 : li===1 ? 2.5 : 2.0;
+      ctx.shadowColor = layer.color + '0.15)'; ctx.shadowBlur = 4;
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      ctx.beginPath();
+      for(let x=0; x<=waveW; x++){
+        const phase = ((x + scrollOffset) / waveW) * Math.PI * 2 * layer.cycles;
+        const y = cy + Math.sin(phase) * amp;
+        x===0 ? ctx.moveTo(waveX0+x, y) : ctx.lineTo(waveX0+x, y);
+      }
+      ctx.lineTo(waveX0+waveW, cy); ctx.lineTo(waveX0, cy); ctx.closePath();
+      const wg = ctx.createLinearGradient(0, cy-amp, 0, cy+amp);
+      wg.addColorStop(0, layer.color+'0.10)'); wg.addColorStop(1, layer.color+'0.02)');
+      ctx.fillStyle = wg; ctx.fill();
+
+      const nx = waveW * 0.72;
+      const phase2 = ((nx + scrollOffset) / waveW) * Math.PI * 2 * layer.cycles;
+      const ny = cy + Math.sin(phase2) * amp;
+      ctx.beginPath(); ctx.arc(waveX0+nx, ny, li===0?5.5:4.5, 0, Math.PI*2);
+      ctx.fillStyle = layer.color + '1)';
+      ctx.shadowColor = layer.color + '0.4)'; ctx.shadowBlur = 8;
+      ctx.fill(); ctx.shadowBlur = 0;
+
+      const bodyY = by + (li===0 ? bh*0.19 : li===1 ? 0 : -bh*0.38);
+      ctx.beginPath(); ctx.setLineDash([3,6]);
+      ctx.moveTo(waveX0+waveW+6, cy);
+      ctx.lineTo(bx - bh*0.22, bodyY);
+      ctx.strokeStyle = layer.color + '0.28)';
+      ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+</script>
+</body>
+</html>
